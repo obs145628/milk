@@ -3,6 +3,9 @@ cmake_minimum_required(VERSION 3.0)
 set(CMAKE_C_COMPILER /home/obs/local/llvm10/bin/clang CACHE PATH "" FORCE)
 set(CMAKE_CXX_COMPILER /home/obs/local/llvm10/bin/clang++ CACHE PATH "" FORCE)
 
+set(CMAKE_CXX_FLAGS "-std=c++17 -Wall -Wextra -Werror -pedantic \
+  -Wglobal-constructors"
+)
 set(CMAKE_CXX_FLAGS_DEBUG "-O0 -g3")
 set(CMAKE_CXX_FLAGS_RELEASE "-O2 -DNDEBUG")
 
@@ -14,14 +17,6 @@ include_directories(SYSTEM "extern/Catch2/single_include")
 
 project(mlk)
 
-set(SRC
-
-  src/lexer/lexer-error.cc
-  src/lexer/location.cc
-  src/lexer/position.cc
-  src/lexer/token.cc
-
-  src/main.cc
-)
-
-add_executable(app ${SRC})
+add_subdirectory(apps)
+add_subdirectory(libs)
+add_subdirectory(tests)

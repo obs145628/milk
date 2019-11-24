@@ -1,5 +1,5 @@
-#include "position.hh"
-#include "stream.hh"
+#include "lexer/position.hh"
+#include "lexer/stream.hh"
 
 namespace obcl {
 

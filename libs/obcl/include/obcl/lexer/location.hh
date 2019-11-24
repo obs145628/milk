@@ -42,7 +42,8 @@ struct Location {
 
   /// Returns the first location of a sequence
   /// @param container - sequence of localized items
-  /// container can't be empty
+  /// Each item of the sequence must have a ->loc() method that returns a
+  /// Location container can't be empty
   template <class T> static Location begin_of(const T &container) {
     assert(!container.empty());
     return container.front()->loc();
@@ -50,7 +51,8 @@ struct Location {
 
   /// Returns the last location of a sequence
   /// @param container - sequence of localized items
-  /// container can't be empty
+  /// Each item of the sequence must have a ->loc() method that returns a
+  /// Location container can't be empty
   template <class T> static Location end_of(const T &container) {
     assert(!container.empty());
     return container.back()->loc();

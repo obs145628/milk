@@ -1,5 +1,5 @@
-#include "location.hh"
-#include "stream.hh"
+#include "lexer/location.hh"
+#include "lexer/stream.hh"
 #include <cassert>
 
 namespace obcl {

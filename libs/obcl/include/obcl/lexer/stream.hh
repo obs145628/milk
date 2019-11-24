@@ -103,7 +103,7 @@ private:
 inline Stream::Stream(const std::string &name,
                       std::unique_ptr<std::istream> &&is)
     : _name(name), _is(std::move(is)), _row(1), _col(1), _pos(0),
-      _state(ReadState::FIRST_CHAR), _char(is->get()) {}
+      _state(ReadState::FIRST_CHAR), _char(_is->get()) {}
 
 inline void Stream::next() {
   auto curr_char = _char;
@@ -140,7 +140,7 @@ inline void Stream::prev() {
 
 inline std::string Stream::extract_row(std::size_t row) {
   std::string res;
-  int cur = 1;
+  std::size_t cur = 1;
   auto pos = _is->tellg();
   _is->clear();
   _is->seekg(0);

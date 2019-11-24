@@ -55,7 +55,7 @@ struct Token {
   static void add_type(token_type_t type, const char *repr);
 
 private:
-  static std::map<token_type_t, const char *> _type_reprs;
+  static std::map<token_type_t, const char *> &_get_type_reprs();
 };
 
 /// Dump a Token. for debug purposes only
