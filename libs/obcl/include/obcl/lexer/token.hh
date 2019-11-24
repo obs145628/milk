@@ -52,6 +52,8 @@ struct Token {
   double get_float() const;
 
   /// add a new custom token type
+  /// @param repr - string representation, for debug porposes. Should be a
+  /// static string
   static void add_type(token_type_t type, const char *repr);
 
 private:
