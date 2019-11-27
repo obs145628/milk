@@ -16,9 +16,11 @@
 
 namespace obcl {
 
+class Lexer;
 struct Location;
 struct Position;
 struct Token;
+class Trie;
 class Stream;
 
 using token_type_t = int;

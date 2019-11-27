@@ -1,5 +1,6 @@
 
 set(SRC_LEXER
+  lexer/lexer-test.cc
   lexer/location-test.cc
   lexer/stream-test.cc
   lexer/token-test.cc

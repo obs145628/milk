@@ -40,6 +40,13 @@ struct Token {
   Token(const Location &loc, token_type_t type, const std::string &val)
       : loc(loc), type(type), val(val) {}
 
+  /// @returns an EOF token
+  /// This token is special, it's the only one connected to no stream
+  static Token eof() {
+    Position pos0(0, 0, 0, nullptr);
+    return Token(Location(pos0, pos0), TOK_EOF, "");
+  }
+
   /// \returns a string representation of the token type
   const char *type_str() const;
 
