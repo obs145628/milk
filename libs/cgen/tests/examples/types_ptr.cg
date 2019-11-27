@@ -1,0 +1,14 @@
+fn i32 foo1(x : i32**, y: i32 **, z: i32)
+{
+    return **x;
+}
+
+fn void babe(x: i32**, y: f32***)
+{
+    
+}
+
+fn void main()
+{
+    45;
+}

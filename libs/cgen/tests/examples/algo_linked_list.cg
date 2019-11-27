@@ -1,0 +1,149 @@
+struct Node
+{
+    val: i64,
+    next: Node*
+};
+
+struct List
+{
+    root: Node*,
+    size: i64,
+};
+
+
+
+fn void list_init(l: List*)
+{
+    (*l).root = reinterpret_cast Node* (0);
+    (*l).size = 0;
+}
+
+fn void list_clear(l: List*)
+{
+    var Node* node;
+    var Node* next;
+
+    node = (*l).root;
+
+    while (node != reinterpret_cast Node* (0))
+    {
+        next = (*node).next;
+        cgen_std_free(ptr_cast void* (node));
+        node = next;
+    }
+
+    (*l).root = reinterpret_cast Node* (0);
+    (*l).size = 0;
+}
+
+fn void list_push_back(l: List*, x: i64)
+{
+    var Node** last;
+
+    last = &((*l).root);
+    while (*last != reinterpret_cast Node* (0))
+        last = &((**last).next);
+    *last = ptr_cast Node* (cgen_std_malloc(sizeof Node));
+    (**last).val = x;
+    (**last).next = reinterpret_cast Node* (0);
+    (*l).size = (*l).size + 1;
+}
+
+fn void list_push_front(l: List*, x: i64)
+{
+    var Node* head;
+
+    head = ptr_cast Node* (cgen_std_malloc(sizeof Node));
+    (*head).val = x;
+    (*head).next = (*l).root;
+
+    (*l).root = head;
+    (*l).size = (*l).size + 1;
+}
+
+fn void list_pop_back(l: List*)
+{
+    if ((*l).root == reinterpret_cast Node* (0))
+        return;
+
+    var Node** prev;
+    prev = &((*l).root);
+    while ((**prev).next != reinterpret_cast Node* (0))
+        prev = &((**prev).next);
+    cgen_std_free(ptr_cast void* (*prev));
+    *prev = reinterpret_cast Node* (0);
+    (*l).size = (*l).size - 1;
+}
+
+fn void list_pop_front(l: List*)
+{
+    var Node* head;
+    
+    if ((*l).root == reinterpret_cast Node* (0))
+        return;
+    
+    head = (*((*l).root)).next;
+    cgen_std_free(ptr_cast void* ((*l).root));
+    (*l).root = head;
+    (*l).size = (*l).size - 1;
+}
+
+fn void list_print(l: List*)
+{
+    var Node* node;
+
+    cgen_std_print_str("{");
+    node = (*l).root;
+    while (node != reinterpret_cast Node* (0)) {
+        cgen_std_print_int((*node).val);
+        if ((*node).next != reinterpret_cast Node* (0))
+            cgen_std_print_str(", ");
+        node = (*node).next;
+    }
+    cgen_std_print_str("}\n");
+}
+
+fn i64 main()
+{
+    var List l;
+    var i64 i;
+
+    list_init(&l);
+    list_print(&l);
+
+    list_push_back(&l, 18);
+    list_push_front(&l, 9);
+    list_push_front(&l, 5);
+    list_push_back(&l, 24);
+    list_push_front(&l, 4);
+    list_push_back(&l, 27);
+    list_print(&l);
+
+    list_pop_back(&l);
+    list_pop_front(&l);
+    list_print(&l);
+    list_pop_front(&l);
+    list_pop_front(&l);
+    list_print(&l);
+    list_pop_back(&l);
+    list_pop_back(&l);
+    
+    list_print(&l);
+    list_push_front(&l, 5);
+    list_print(&l);
+    list_pop_front(&l);
+    list_print(&l);
+
+    i = 0;
+    while (i < 10)
+    {
+        list_push_front(&l, i*i);
+        i = i + 1;
+    }
+    list_print(&l);
+
+    list_clear(&l);
+    list_print(&l);
+
+    return 0;
+}

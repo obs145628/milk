@@ -1,0 +1,6 @@
+
+fn i32 main()
+{
+    var i32 x = 5;
+    return x;
+}

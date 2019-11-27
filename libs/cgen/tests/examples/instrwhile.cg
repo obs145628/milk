@@ -1,0 +1,8 @@
+fn void main()
+{
+    while (static_cast bool (1)) {
+        45;
+        break;
+        continue;
+    }
+}

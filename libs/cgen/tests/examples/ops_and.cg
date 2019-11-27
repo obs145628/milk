@@ -1,0 +1,6 @@
+fn i32 main()
+{
+    return static_cast i32 (
+        static_cast bool (4) && static_cast bool (6)
+    );
+}

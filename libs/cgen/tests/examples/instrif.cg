@@ -1,0 +1,9 @@
+fn void main()
+{
+    if (static_cast bool (1)) {
+        2;
+    }
+    else {
+        3;
+    }
+}

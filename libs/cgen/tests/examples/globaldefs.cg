@@ -1,0 +1,8 @@
+var i32 lul = static_cast i32 (12);
+var f32 op = static_cast f32 (7.6);
+var f64 xor = static_cast f64 (4);
+
+fn void main()
+{
+
+}

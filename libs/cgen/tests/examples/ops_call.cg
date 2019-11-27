@@ -1,0 +1,10 @@
+fn i32 my_foo(x: i32, y: i32, z: i32)
+{
+    return x | y * z;
+}
+
+fn i32 main()
+{
+    return my_foo(static_cast i32 (10), static_cast i32 (12), 
+        static_cast i32 (4+6));
+}

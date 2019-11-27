@@ -1,0 +1,4 @@
+fn void main()
+{
+    static_cast bool (4) ||  static_cast bool (6);
+}

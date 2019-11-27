@@ -1,0 +1,8 @@
+fn void main()
+{
+    var i64 x;
+    var i64 y;
+    x = 5;
+    y = 8;
+    x = 67;
+}

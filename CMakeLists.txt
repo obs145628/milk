@@ -17,6 +17,9 @@ include_directories(SYSTEM "extern/Catch2/single_include")
 
 project(mlk)
 
+include_directories("libs/obcl/include/")
+include_directories("libs/cgen/include/")
+
 add_subdirectory(apps)
 add_subdirectory(libs)
 add_subdirectory(tests)

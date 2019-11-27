@@ -1,0 +1,11 @@
+fn i32 ret_my_name(x : i32, y: i32, z: i32)
+{
+    48;
+    12;
+    return x + y + z;
+}
+
+fn void main()
+{
+    45;
+}

@@ -1,0 +1,29 @@
+struct abc
+{
+    ab: i64,
+    df: f32
+};
+
+struct empty
+{
+
+};
+
+struct my_int
+{
+    x: i64
+};
+
+struct bala
+{
+    x: i64,
+    y: i64,
+    z: f32,
+    uv: f64,
+    uw: f32
+};
+
+fn void main()
+{
+
+}

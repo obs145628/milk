@@ -1,0 +1,9 @@
+fn void main()
+{
+    var i64 ab;
+    var f32 cd;
+    var f64 ef;
+    ab = 12;
+    cd = static_cast f32 (7);
+    ef = 4.6;
+}

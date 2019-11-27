@@ -1,0 +1,15 @@
+fn i32 cabal(xy: i32, zu: i32)
+{
+    return xy + zu;
+}
+
+fn i64 mala(sop: i32, rest: i32)
+{
+    return 56;
+}
+
+
+fn void main()
+{
+    1;
+}

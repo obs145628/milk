@@ -1,0 +1,7 @@
+fn void main()
+{
+    var bool x;
+    var bool y;
+    x = -!~static_cast i32 (45);
+    y = *&x;
+}

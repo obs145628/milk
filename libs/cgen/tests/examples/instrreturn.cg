@@ -1,0 +1,4 @@
+fn i32 main()
+{
+    return static_cast i32 (1 + 1);
+}

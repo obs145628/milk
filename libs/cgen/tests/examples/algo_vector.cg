@@ -1,0 +1,318 @@
+fn void assert_fn(res: bool)
+{
+    if (!res)
+        cgen_std_exit(static_cast i32 (1));
+}
+
+
+struct Vector
+{
+    arr: i64*,
+    size: usize,
+    cap: usize
+};
+
+fn void vector_init(v: Vector*)
+{
+    (*v).size = static_cast usize (0);
+    (*v).cap = static_cast usize (2);
+    (*v).arr = ptr_cast i64* (cgen_std_malloc((*v).cap * sizeof i64));
+}
+
+fn void vector_free(v: Vector*)
+{
+    cgen_std_free(ptr_cast void* ((*v).arr));
+}
+
+fn i64* vector_begin(v: Vector*)
+{
+    return (*v).arr;
+}
+
+fn i64* vector_end(v: Vector*)
+{
+    return (*v).arr + static_cast isize ((*v).size);
+}
+
+fn usize vector_size(v: Vector*)
+{
+    return (*v).size;
+}
+
+fn bool vector_empty(v: Vector*)
+{
+    return (*v).size == static_cast usize (0);
+}
+
+fn void vector_reserve(v: Vector*, len: usize)
+{
+    var i64* new_data;
+
+    if ((*v).cap >= len)
+        return;
+    (*v).cap = len;
+    new_data = ptr_cast i64* (
+        cgen_std_malloc((*v).cap * sizeof i64));
+    cgen_std_memcpy(ptr_cast void* (new_data), 
+        ptr_cast void* ((*v).arr), (*v).size * sizeof i64);
+
+    cgen_std_free(ptr_cast void* ((*v).arr));
+    (*v).arr = new_data;
+}
+
+fn void vector_resize(v: Vector*, len: usize)
+{
+    var usize new_cap;
+
+    new_cap = (*v).cap;
+    while (new_cap < len)
+        new_cap = new_cap * static_cast usize (2);
+    if (new_cap != (*v).cap)
+        vector_reserve(v, new_cap);
+    (*v).size = len;
+}
+
+fn void vector_clear(v: Vector*)
+{
+    vector_resize(v, static_cast usize(0));
+} 
+
+fn i64 vector_get(v: Vector*, i: usize)
+{
+    assert_fn(i < (*v).size);
+    return *((*v).arr + static_cast isize (i));
+}
+
+fn void vector_set(v: Vector*, i: usize, x: i64)
+{
+    assert_fn(i < (*v).size);
+    *((*v).arr + static_cast isize (i)) = x;
+}
+
+fn void vector_push_back(v: Vector*, x: i64)
+{
+    vector_resize(v, (*v).size + static_cast usize (1));
+    vector_set(v, (*v).size - static_cast usize (1), x);
+}
+
+fn void vector_insert(v: Vector*, i: usize, x: i64)
+{
+    assert_fn(i <= (*v).size);
+    cgen_std_memmove(ptr_cast void* ((*v).arr 
+        + static_cast isize (i) 
+        + static_cast isize(1)), 
+        ptr_cast void* ((*v).arr + static_cast isize(i)), 
+        ((*v).size - i) * sizeof i64);
+    (*v).size = (*v).size + static_cast usize (1);
+    vector_set(v, i, x);
+}
+
+fn void vector_remove(v: Vector*, i: usize, nb: usize)
+{
+    var usize nmove;
+
+    if (nb == static_cast usize (0))
+        return;
+    
+    assert_fn(i < (*v).size);
+    assert_fn(i + nb <= (*v).size);
+
+    nmove = (*v).size - i - nb;
+    cgen_std_memmove(ptr_cast void* ((*v).arr 
+        + static_cast isize(i)), 
+        ptr_cast void* ((*v).arr
+        + static_cast isize (i + nb)), 
+        nmove * sizeof i64);
+    (*v).size = (*v).size - nb;
+}
+
+fn void vector_assign(dst: Vector*, src: Vector*)
+{
+    vector_resize(dst, (*src).size);
+    cgen_std_memcpy(ptr_cast void* ((*dst).arr), 
+        ptr_cast void* ((*src).arr), (*src).size * sizeof i64);
+}
+
+fn void vector_print(v: Vector*)
+{
+    var usize i;
+
+    cgen_std_print_str("{");
+    i = static_cast usize (0);
+    while (i < (*v).size)
+    {
+        cgen_std_print_int(vector_get(v, i));
+        if (i + static_cast usize (1) < vector_size(v))
+            cgen_std_print_str(", ");
+        i = i + static_cast usize (1);
+    }
+    cgen_std_print_str("}\n");
+}
+
+
+fn void test_basics()
+{
+    var Vector v;
+    var i64 i;
+
+    vector_init(&v);
+    assert_fn(vector_empty(&v));
+    assert_fn(vector_size(&v) == static_cast usize (0));
+    assert_fn(vector_begin(&v) == v.arr);
+    assert_fn(vector_end(&v) == v.arr);
+
+    i = 0;
+    while (i < 10)
+    {
+        vector_push_back(&v, i);
+        i = i + 1;
+    }
+
+    assert_fn(!vector_empty(&v));
+    assert_fn(vector_size(&v) == static_cast usize (10));
+    assert_fn(vector_begin(&v) == v.arr);
+    assert_fn(vector_end(&v) == v.arr + 10);
+
+    vector_clear(&v);
+    assert_fn(vector_empty(&v));
+    assert_fn(vector_size(&v) == static_cast usize (0));
+    assert_fn(vector_begin(&v) == v.arr);
+    assert_fn(vector_end(&v) == v.arr);
+
+    vector_free(&v);
+}
+
+fn void test_resize_get_set()
+{
+    var Vector v;
+    var i64 i;
+
+    vector_init(&v);
+    assert_fn(vector_size(&v) == static_cast usize (0));
+    vector_resize(&v, static_cast usize (8));
+    assert_fn(vector_size(&v) == static_cast usize (8));
+
+    i = 0;
+    while (i < 8)
+    {
+        vector_set(&v, static_cast usize (i), i*i*i);
+        i = i + 1;
+    }
+
+    vector_print(&v);
+    i = 0;
+    while (i < 8)
+    {
+        assert_fn(vector_get(&v, static_cast usize (i)) == i*i*i);
+        i = i + 1;
+    }
+
+    vector_resize(&v, static_cast usize (3));
+    vector_print(&v);
+    assert_fn(vector_size(&v) == static_cast usize (3));
+
+    i = 0;
+    while (i < 3)
+    {
+        assert_fn(vector_get(&v, static_cast usize (i)) == i*i*i);
+        i = i + 1;
+    }
+
+    vector_resize(&v, static_cast usize (0));
+    assert_fn(vector_size(&v) == static_cast usize (0));
+
+    vector_free(&v);
+}
+
+fn void test_insert()
+{
+    var Vector v;
+
+    vector_init(&v);
+    vector_push_back(&v, 10);
+    vector_push_back(&v, 56);
+    vector_push_back(&v, 45);
+    vector_print(&v);
+    assert_fn(vector_get(&v, static_cast usize (0)) == 10);
+    assert_fn(vector_get(&v, static_cast usize (1)) == 56);
+    assert_fn(vector_get(&v, static_cast usize (2)) == 45);
+
+    vector_insert(&v, static_cast usize (0), 7);
+    vector_print(&v);
+    assert_fn(vector_get(&v, static_cast usize (0)) == 7);
+    assert_fn(vector_get(&v, static_cast usize (1)) == 10);
+    assert_fn(vector_get(&v, static_cast usize (2)) == 56);
+    assert_fn(vector_get(&v, static_cast usize (3)) == 45);
+    
+    vector_insert(&v, static_cast usize (2), 18);
+    vector_print(&v);
+    assert_fn(vector_get(&v, static_cast usize (0)) == 7);
+    assert_fn(vector_get(&v, static_cast usize (1)) == 10);
+    assert_fn(vector_get(&v, static_cast usize (2)) == 18);
+    assert_fn(vector_get(&v, static_cast usize (3)) == 56);
+    assert_fn(vector_get(&v, static_cast usize (4)) == 45);
+
+    vector_insert(&v, static_cast usize (5), 59);
+    vector_print(&v);
+    assert_fn(vector_get(&v, static_cast usize (0)) == 7);
+    assert_fn(vector_get(&v, static_cast usize (1)) == 10);
+    assert_fn(vector_get(&v, static_cast usize (2)) == 18);
+    assert_fn(vector_get(&v, static_cast usize (3)) == 56);
+    assert_fn(vector_get(&v, static_cast usize (4)) == 45);
+    assert_fn(vector_get(&v, static_cast usize (5)) == 59);
+}
+
+fn void test_remove()
+{
+    var Vector v;
+
+    vector_init(&v);
+
+    vector_push_back(&v, 10);
+    vector_push_back(&v, 56);
+    vector_push_back(&v, 45);
+    vector_push_back(&v, 12);
+    vector_push_back(&v, 17);
+    vector_print(&v);
+
+    vector_remove(&v, static_cast usize (1), static_cast usize (2));
+    vector_print(&v);
+    assert_fn(vector_size(&v) == static_cast usize (3));
+    assert_fn(vector_get(&v, static_cast usize (0)) == 10);
+    assert_fn(vector_get(&v, static_cast usize (1)) == 12);
+    assert_fn(vector_get(&v, static_cast usize (2)) == 17);
+
+    vector_remove(&v, static_cast usize (0), static_cast usize (1));
+    vector_print(&v);
+    assert_fn(vector_size(&v) == static_cast usize (2));
+    assert_fn(vector_get(&v, static_cast usize (0)) == 12);
+    assert_fn(vector_get(&v, static_cast usize (1)) == 17);
+
+    vector_remove(&v, static_cast usize (1), static_cast usize (1));
+    vector_print(&v);
+    assert_fn(vector_size(&v) == static_cast usize (1));
+    assert_fn(vector_get(&v, static_cast usize (0)) == 12);
+}
+
+fn void test_print()
+{
+    var Vector v;
+    
+    vector_init(&v);
+    vector_push_back(&v, 4);
+    vector_push_back(&v, 5);
+    vector_push_back(&v, 2);
+    vector_push_back(&v, 3);
+    vector_print(&v);
+    vector_free(&v);
+}
+
+fn i32 main()
+{
+    test_basics();
+    test_resize_get_set();
+    test_insert();
+    test_remove();
+    test_print();
+    return static_cast i32 (0);
+}

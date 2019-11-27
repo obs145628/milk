@@ -1,0 +1,8 @@
+type el_char = i8;
+type myi64 = u64;
+type myu64 = i64;
+
+fn void main()
+{
+
+}

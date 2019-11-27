@@ -1,0 +1,567 @@
+fn void assert_fn(res: bool)
+{
+    if (!res)
+        cgen_std_exit(static_cast i32 (1));
+}
+
+type data_t = char*;
+
+fn i32 data_cmp(a: data_t, b: data_t)
+{
+    var usize i;
+
+    i = static_cast usize(0);
+    while (static_cast bool ((*(a + static_cast isize(i)))) 
+        && static_cast bool (*(b + static_cast isize (i)))
+        && *(a + static_cast isize (i)) == *(b + static_cast isize (i)))
+        i = i + static_cast usize (1);
+    
+    return static_cast i32 (*(a + static_cast isize (i))) 
+        - static_cast i32 (*(b + static_cast isize (i)));
+}
+
+struct BST
+{
+    parent: BST*,
+    left: BST*,
+    right: BST*,
+    data: data_t
+};
+
+struct Set
+{
+    root: BST*,
+    size: usize
+};
+
+struct SetIt
+{
+    last_act: i32,
+    node: BST*
+};
+
+fn void bst_free(t: BST*)
+{
+    if ((*t).left != reinterpret_cast BST* (0))
+        bst_free((*t).left);
+    if ((*t).right != reinterpret_cast BST* (0))
+        bst_free((*t).right);
+    cgen_std_free(ptr_cast void* (t));
+}
+
+fn BST* bst_new(data: data_t, parent: BST*)
+{
+    var BST* res;
+
+    res = ptr_cast BST* (cgen_std_malloc(sizeof BST));
+    (*res).parent = parent;
+    (*res).left = reinterpret_cast BST* (0);
+    (*res).right = reinterpret_cast BST* (0);
+    (*res).data = data;
+    return res;
+}
+
+fn BST* bst_min(t: BST*)
+{
+    while ((*t).left != reinterpret_cast BST* (0))
+        t = (*t).left;
+    return t;
+}
+
+fn BST* bst_max(t: BST*)
+{
+    while ((*t).right != reinterpret_cast BST* (0))
+        t = (*t).right;
+    return t;
+}
+
+fn BST* bst_find(t: BST*, data: data_t)
+{
+    var i32 cmp;
+
+    cmp = data_cmp(data, (*t).data);
+
+    if (cmp < static_cast i32 (0))
+    {
+        if ((*t).left != reinterpret_cast BST* (0))
+            return bst_find((*t).left, data);
+        else
+            return reinterpret_cast BST* (0);
+    }
+    else if (cmp > static_cast i32 (0))
+    {
+        if ((*t).right != reinterpret_cast BST* (0))
+            return bst_find((*t).right, data);
+        else
+            return reinterpret_cast BST* (0);
+    }
+    else
+        return t;
+}
+
+fn bool bst_insert(t: BST*, data: data_t)
+{
+    var i32 cmp;
+
+    cmp = data_cmp(data, (*t).data);
+
+    if (cmp < static_cast i32 (0))
+    {
+        if ((*t).left != reinterpret_cast BST* (0))
+            return bst_insert((*t).left, data);
+        
+        (*t).left = bst_new(data, t);
+        return static_cast bool (1);
+    }
+
+    else if (cmp > static_cast i32 (0))
+    {
+        if ((*t).right != reinterpret_cast BST* (0))
+            return bst_insert((*t).right, data);
+        
+        (*t).right = bst_new(data, t);
+        return static_cast bool (1);
+    }
+
+    else
+        return static_cast bool (0);
+}
+
+fn bool bst_remove(root: BST**, node: BST*, data: data_t)
+{
+    var BST** node_ptr;
+    var BST* p;
+
+    node = bst_find(node, data);
+    if (node == reinterpret_cast BST* (0))
+        return static_cast bool (0);
+
+    node_ptr = root;
+    p = (*node).parent;
+    if (p != reinterpret_cast BST* (0))
+    {
+        if ((*p).left == node)
+            node_ptr = &((*p).left);
+        else
+            node_ptr = &((*p).right);
+    }
+
+    if ((*node).left == reinterpret_cast BST* (0))
+    {
+        *node_ptr = (*node).right;
+        if (*node_ptr != reinterpret_cast BST* (0))
+            (*((*node).right)).parent = (*node).parent;
+        cgen_std_free(ptr_cast void* (node));
+        return static_cast bool (1);
+    }
+
+    else if ((*node).right == reinterpret_cast BST* (0))
+    {
+        *node_ptr = (*node).left;
+        if (*node_ptr != reinterpret_cast BST* (0))
+            (*((*node).left)).parent = (*node).parent;
+        cgen_std_free(ptr_cast void* (node));
+        return static_cast bool (1);
+    }
+
+    else
+    {
+        (*node).data = (*bst_min((*node).right)).data;
+        return bst_remove(root, (*node).right, (*node).data);
+    }
+        
+}
+
+fn void set_it_next(it: SetIt*)
+{
+    var BST* node;
+    var BST* next;
+    var i32 last_act;
+    var bool can_right;
+    
+    while (static_cast bool (1))
+    {
+        last_act = (*it).last_act;
+        node = (*it).node;
+        if (node == reinterpret_cast BST* (0))
+            break;
+        
+        can_right = last_act <= static_cast i32 (1) 
+            && (*node).right != reinterpret_cast BST* (0);
+
+        if (can_right)
+        {
+            (*it).node = bst_min((*node).right);
+            (*it).last_act = static_cast i32 (0);
+            return;
+        }
+
+        else
+        {
+            next = (*node).parent;
+            (*it).node = next;
+            if (next == reinterpret_cast BST* (0))
+                continue;
+            if ((*next).left == node)
+            {
+                (*it).last_act = static_cast i32 (1);
+                break;
+            }
+            else
+                (*it).last_act = static_cast i32 (2);
+        }
+
+    }
+}
+
+fn data_t* set_it_get(it: SetIt*)
+{
+    assert_fn((*it).node != reinterpret_cast BST* (0));
+    return &((*(*it).node).data);
+}
+
+fn bool set_it_eq(a: SetIt*, b: SetIt*)
+{
+    return (*a).node == (*b).node;
+}
+
+fn void set_init(s: Set*)
+{
+    (*s).root = reinterpret_cast BST* (0);
+    (*s).size = static_cast usize (0);
+}
+
+fn void set_free(s: Set*)
+{
+    if ((*s).root != reinterpret_cast BST* (0))
+        bst_free((*s).root);
+}
+
+fn void set_clear(s: Set*)
+{
+    set_free(s);
+    set_init(s);
+}
+
+fn usize set_size(s: Set*)
+{
+    return (*s).size;
+}
+
+fn bool set_empty(s: Set*)
+{
+    return (*s).size == static_cast usize (0);
+}
+
+fn bool set_contains(s: Set*, data: data_t)
+{
+    if ((*s).root == reinterpret_cast BST* (0))
+        return static_cast bool (0);
+    return bst_find((*s).root, data) != reinterpret_cast BST* (0);
+}
+
+fn data_t* set_get(s: Set*, data: data_t)
+{
+    var BST* node;
+
+    if ((*s).root == reinterpret_cast BST* (0))
+        return reinterpret_cast data_t* (0);
+    
+    node = bst_find((*s).root, data);
+    if (node == reinterpret_cast BST* (0))
+        return reinterpret_cast data_t* (0);
+    else
+        return &((*node).data);   
+}
+
+fn bool set_insert(s: Set*, data: data_t)
+{
+    var bool res;
+
+    if ((*s).root == reinterpret_cast BST* (0))
+    {
+        (*s).root = bst_new(data, reinterpret_cast BST* (0));
+        (*s).size = static_cast usize (1);
+        return static_cast bool (1);
+    }
+
+    res = bst_insert((*s).root, data);
+    if (res)
+        (*s).size = (*s).size + static_cast usize (1);
+    return res;
+}
+
+fn bool set_remove(s: Set*, data: data_t)
+{
+    var bool res;
+
+    if ((*s).root == reinterpret_cast BST* (0))
+        return static_cast bool (0);
+    
+    res = bst_remove(&((*s).root), (*s).root, data);
+    if (res)
+        (*s).size = (*s).size - static_cast usize (1);
+    return res;
+}
+
+fn data_t set_min(s: Set*)
+{
+    assert_fn((*s).root != reinterpret_cast BST* (0));
+    return (*bst_min((*s).root)).data;
+}
+
+fn data_t set_max(s: Set*)
+{
+    assert_fn((*s).root != reinterpret_cast BST* (0));
+    return (*bst_max((*s).root)).data;
+}
+
+fn SetIt set_begin(s: Set*)
+{
+    var SetIt res;
+
+    res.last_act = static_cast i32 (0);
+    if ((*s).root != reinterpret_cast BST* (0))
+        res.node =  bst_min((*s).root);
+    else
+        res.node = reinterpret_cast BST* (0);
+    
+    return res;
+}
+
+fn SetIt set_end(s: Set*)
+{
+    var SetIt res;
+
+    res.node = reinterpret_cast BST* (0);
+    return res;
+}
+
+fn void set_print(s: Set*)
+{
+    var SetIt it;
+    var SetIt end;
+    var data_t* data;
+
+    it = set_begin(s);
+    end = set_end(s);
+    cgen_std_print_str("{");
+
+    while (!set_it_eq(&it, &end))
+    {
+        data = set_it_get(&it);
+        cgen_std_print_str(*data);
+
+        set_it_next(&it);
+        if (!set_it_eq(&it, &end))
+            cgen_std_print_str(", ");
+    }
+
+    cgen_std_print_str("}\n");
+}
+
+
+
+
+fn void test_basics()
+{
+    var Set s;
+
+    set_init(&s);
+    assert_fn(set_empty(&s));
+    assert_fn(set_size(&s) == static_cast u64 (0));
+
+    assert_fn(set_insert(&s, "tkt"));
+    set_print(&s);
+    assert_fn(!set_empty(&s));
+    assert_fn(set_size(&s) == static_cast u64 (1));
+
+    set_clear(&s);
+    set_print(&s);
+    assert_fn(set_empty(&s));
+    assert_fn(set_size(&s) == static_cast u64 (0));
+
+    set_free(&s);
+}
+
+fn void test_insert()
+{
+    var Set s;
+    
+    set_init(&s);
+
+    assert_fn(set_insert(&s, "c"));
+    assert_fn(set_size(&s) == static_cast u64 (1));
+    set_print(&s);
+    assert_fn(!set_insert(&s, "c"));
+
+    assert_fn(set_insert(&s, "rust"));
+    assert_fn(set_size(&s) == static_cast u64 (2));
+    set_print(&s);
+
+    assert_fn(set_insert(&s, "c++"));
+    assert_fn(set_size(&s) == static_cast u64 (3));
+    set_print(&s);
+
+    assert_fn(set_insert(&s, "java"));
+    assert_fn(set_size(&s) == static_cast u64 (4));
+    set_print(&s);
+
+    assert_fn(set_insert(&s, "d"));
+    assert_fn(set_size(&s) == static_cast u64 (5));
+    set_print(&s);
+
+    assert_fn(set_insert(&s, "python"));
+    assert_fn(set_size(&s) == static_cast u64 (6));
+    set_print(&s);
+
+    assert_fn(set_insert(&s, "javascript"));
+    assert_fn(set_size(&s) == static_cast u64 (7));
+    set_print(&s);
+
+    assert_fn(set_insert(&s, "lua"));
+    assert_fn(set_size(&s) == static_cast u64 (8));
+    set_print(&s);
+
+    assert_fn(set_insert(&s, "ocaml"));
+    assert_fn(set_size(&s) == static_cast u64 (9));
+    set_print(&s);
+
+    assert_fn(set_insert(&s, "brainfuck"));
+    assert_fn(set_size(&s) == static_cast u64 (10));
+    set_print(&s);
+
+    assert_fn(set_insert(&s, "c#"));
+    assert_fn(set_size(&s) == static_cast u64 (11));
+    set_print(&s);
+
+    assert_fn(set_insert(&s, "objective-c"));
+    assert_fn(set_size(&s) == static_cast u64 (12));
+    set_print(&s);
+
+    assert_fn(set_insert(&s, "basic"));
+    assert_fn(set_size(&s) == static_cast u64 (13));
+    set_print(&s);
+
+    assert_fn(set_insert(&s, "go"));
+    assert_fn(set_size(&s) == static_cast u64 (14));
+    set_print(&s);
+
+    assert_fn(set_insert(&s, "asm"));
+    assert_fn(set_size(&s) == static_cast u64 (15));
+    set_print(&s);
+
+    assert_fn(set_contains(&s, "c"));
+    assert_fn(set_contains(&s, "rust"));
+    assert_fn(set_contains(&s, "c++"));
+    assert_fn(set_contains(&s, "java"));
+    assert_fn(set_contains(&s, "d"));
+    assert_fn(set_contains(&s, "python"));
+    assert_fn(set_contains(&s, "javascript"));
+    assert_fn(set_contains(&s, "lua"));
+    assert_fn(set_contains(&s, "ocaml"));
+    assert_fn(set_contains(&s, "brainfuck"));
+    assert_fn(set_contains(&s, "c#"));
+    assert_fn(set_contains(&s, "objective-c"));
+    assert_fn(set_contains(&s, "basic"));
+    assert_fn(set_contains(&s, "go"));
+    assert_fn(set_contains(&s, "asm"));
+
+    assert_fn(!set_insert(&s, "c"));
+    assert_fn(!set_insert(&s, "rust"));
+    assert_fn(!set_insert(&s, "c++"));
+    assert_fn(!set_insert(&s, "java"));
+    assert_fn(!set_insert(&s, "d"));
+    assert_fn(!set_insert(&s, "python"));
+    assert_fn(!set_insert(&s, "javascript"));
+    assert_fn(!set_insert(&s, "lua"));
+    assert_fn(!set_insert(&s, "ocaml"));
+    assert_fn(!set_insert(&s, "brainfuck"));
+    assert_fn(!set_insert(&s, "c#"));
+    assert_fn(!set_insert(&s, "objective-c"));
+    assert_fn(!set_insert(&s, "basic"));
+    assert_fn(!set_insert(&s, "go"));
+    assert_fn(!set_insert(&s, "asm"));
+
+    set_clear(&s);
+    set_print(&s);
+    set_free(&s);
+}
+
+fn void test_remove()
+{
+    var Set s;
+
+    set_init(&s);
+
+    assert_fn(set_insert(&s, "tf"));
+    assert_fn(set_insert(&s, "numpy"));
+    assert_fn(set_insert(&s, "scipy"));
+    assert_fn(set_insert(&s, "torch"));
+    assert_fn(set_insert(&s, "django"));
+    assert_fn(set_insert(&s, "flask"));
+    assert_fn(set_insert(&s, "pandas"));
+    assert_fn(set_insert(&s, "sklearn"));
+    assert_fn(set_insert(&s, "matplotlib"));
+    assert_fn(set_insert(&s, "pickle"));
+    set_print(&s);
+    assert_fn(set_size(&s) == static_cast usize (10));
+
+    assert_fn(set_remove(&s, "tf"));
+    set_print(&s);
+    assert_fn(set_remove(&s, "numpy"));
+    set_print(&s);
+    assert_fn(set_remove(&s, "scipy"));
+    set_print(&s);
+    assert_fn(set_remove(&s, "torch"));
+    set_print(&s);
+    assert_fn(set_remove(&s, "django"));
+    set_print(&s);
+    assert_fn(set_remove(&s, "flask"));
+    set_print(&s);
+    assert_fn(set_remove(&s, "pandas"));
+    set_print(&s);
+    assert_fn(set_remove(&s, "sklearn"));
+    set_print(&s);
+    assert_fn(set_remove(&s, "matplotlib"));
+    set_print(&s);
+    assert_fn(set_remove(&s, "pickle"));
+    set_print(&s);
+    assert_fn(set_size(&s) == static_cast usize (0));
+    set_free(&s);
+}
+
+fn void test_print()
+{
+    var Set s;
+
+    set_init(&s);
+    set_print(&s);
+    assert_fn(set_insert(&s, "56"));
+    assert_fn(set_insert(&s, "45"));
+    assert_fn(set_insert(&s, "28"));
+    assert_fn(set_insert(&s, "12"));
+    set_print(&s);
+
+    assert_fn(set_remove(&s, "45"));
+    assert_fn(set_insert(&s, "17"));
+    assert_fn(set_insert(&s, "49"));
+    set_print(&s);
+
+    assert_fn(set_remove(&s, "56"));
+    assert_fn(set_remove(&s, "28"));
+    assert_fn(set_insert(&s, "40"));
+    set_print(&s);
+
+    set_free(&s);
+}
+
+fn i32 main()
+{
+    test_basics();
+    test_insert();
+    test_remove();
+    test_print();
+
+    return static_cast i32 (0);
+}
