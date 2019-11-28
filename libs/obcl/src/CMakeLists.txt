@@ -6,7 +6,12 @@ set(LEXER_SRC
   lexer/position.cc
   lexer/token.cc
   lexer/trie.cc
-  )
+)
+
+set(PARSER_SRC
+  parser/parser.cc
+  parser/parser-error.cc
+)
 
 set(UTILS_SRC
   utils/debug.cc
@@ -14,6 +19,7 @@ set(UTILS_SRC
 
 set(SRC
   ${LEXER_SRC}
+  ${PARSER_SRC}
   ${UTILS_SRC}
 )
 

@@ -1,4 +1,4 @@
-//===--parser/lexer.hh - Lexer utils ----------------*- C++ -*-===//
+//===--parser/lexer.hh - Lexer utils ----------------------------*- C++ -*-===//
 //
 // cgen representation compiler library
 // Author: Steven Lariau
