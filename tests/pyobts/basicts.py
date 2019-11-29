@@ -22,6 +22,7 @@ class BasicTS:
     def __init__(self, name, tests_list):
         self.name = name
         self.tests_list = tests_list
+        self.max_tname_len = max([len(t) for t in self.tests_list])
         self.ntests = len(self.tests_list)
         self.nsuccs = 0
 
@@ -46,7 +47,7 @@ class BasicTS:
         
 
     def run_one(self, t):    
-        sys.stdout.write('{}... '.format(t))
+        sys.stdout.write('{}...{}'.format(t, ' ' * (self.max_tname_len - len(t) + 3)))
         sys.stdout.flush()
         
         res = self.run(t)
