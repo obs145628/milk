@@ -1,59 +1,34 @@
 import os
 import sys
-import subprocess
 
-PY_DIR = os.path.dirname(os.path.realpath(__file__))
-SAMPLES_DIR = os.path.join(PY_DIR, "../examples")
-BUILD_DIR = sys.argv[1]
-LEXER_TEST = os.path.join(BUILD_DIR, "bin/cgen-test-lexer")
+TOP_TESTS_DIR = os.path.join(os.path.dirname(os.path.realpath(__file__)),
+                             "../../../../tests")
+sys.path.append(TOP_TESTS_DIR)
 
-ALL_FILES = set(os.listdir(SAMPLES_DIR))
-TEST_FILES = [os.path.splitext(x)[0] for x in ALL_FILES
-    if x.endswith('.cg')]
-
-test_filter = sys.argv[2] if len(sys.argv) >= 3 else None
+from pyobts.basicts import Result
+from cgents import CgenTS
+import pyobts.ucmd as ucmd
 
 
-def run_cmd(cmd):
-    p = subprocess.Popen(cmd,
-        stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    p.wait()
-    out, err = p.communicate()
-    ret = p.returncode
-    return ret, out, err
+class CgenLexerTS(CgenTS):
+
+    def __init__(self):
+        super().__init__('cgen lexer')
+        self.test_bin = os.path.join(self.build_dir, "bin/cgen-test-lexer")
+
+    def run(self, t):
+        self.get_test_details(t)
 
 
-
-
-def run_tests():
-
-    ntests = 0
-    nsuccs = 0
-
-    print('Tests: Lexer')
-
-    for t in TEST_FILES:
-        tpath = os.path.join(SAMPLES_DIR, '{}.cg'.format(t))
-
-        if test_filter and not test_filter in t:
-            continue
-
-        ntests += 1
-        sys.stdout.write('{}... '.format(t))
-        sys.stdout.flush()
-
-        ret, out, err = run_cmd([LEXER_TEST, tpath])
+        ret, out, err = ucmd.run_cmd([self.test_bin, self.t_path_cg])
         valid = ret == 0
-        
         if valid:
-            nsuccs += 1
-            print('[OK]')
+            return Result.Ok()
         else:
-            print('[KO]')
             err = err.decode('ascii', 'ignore')
-            print(err)
+            return Result.Err(err)
 
-    print('Tests: Parser: {}/{} ({}%)'.format(nsuccs, ntests,
-        100 * nsuccs/ntests))
-
-run_tests()
+if __name__ == '__main__':
+    ts = CgenLexerTS()
+    valid = ts.run_all()
+    sys.exit(0 if valid else 1)
