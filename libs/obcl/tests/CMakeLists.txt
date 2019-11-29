@@ -6,8 +6,14 @@ set(SRC_LEXER
   lexer/token-test.cc
 )
 
+set(SRC_UTILS
+  utils/arguments-test.cc
+)
+
+
 set(SRC
   ${SRC_LEXER}
+  ${SRC_UTILS}
   main.cc
 )
 

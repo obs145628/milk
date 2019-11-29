@@ -1,4 +1,4 @@
-//===-- lexer/stream.hh - Lexer class definition ----------------*- C++ -*-===//
+//===-- utils/debug.hh - debug tools ----------------------------*- C++ -*-===//
 //
 // OBCL compilers library
 // Author: Steven Lariau
@@ -21,4 +21,4 @@ void panic_fn(const char *file, int line, const char *fun,
 
 } // namespace obcl
 
-#define PANIC(X) (panic_fn(__FILE__, __LINE__, __func__, X))
+#define PANIC(X) (::obcl::panic_fn(__FILE__, __LINE__, __func__, X))
