@@ -9,6 +9,11 @@ from pyobts.basicts import Result
 from cgents import CgenTS
 import pyobts.ucmd as ucmd
 
+ERR_MSG = '''Invalid return code: expected {}, got {}
+(output)
+<BEG>{}<END>
+(err):
+<BEG>{}<END>'''
 
 class CgenLexerTS(CgenTS):
 
@@ -19,14 +24,16 @@ class CgenLexerTS(CgenTS):
     def run(self, t):
         self.get_test_details(t)
 
-
+        exp_code = 1 if self.t_err == 'lex' else 0
         ret, out, err = ucmd.run_cmd([self.test_bin, self.t_path_cg])
-        valid = ret == 0
+        valid = ret == exp_code
         if valid:
             return Result.Ok()
         else:
-            err = err.decode('ascii', 'ignore')
-            return Result.Err(err)
+            msg = ERR_MSG.format(exp_code, ret,
+                                 out.decode('ascii', 'ignore'),
+                                 err.decode('ascii', 'ignore'))  
+            return Result.Err(msg)
 
 if __name__ == '__main__':
     ts = CgenLexerTS()

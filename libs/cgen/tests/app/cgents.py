@@ -28,3 +28,7 @@ class CgenTS(BasicTS):
         self.t_name = t
         self.t_name_cg = '{}.cg'.format(self.t_name)
         self.t_path_cg = os.path.join(self.samples_dir, self.t_name_cg)
+
+        self.t_err = None
+        if self.t_name.startswith('err_'):
+            self.t_err = self.t_name.split('_')[1]
