@@ -25,9 +25,9 @@ namespace cgen {
 /// Contains a list of definitions (struct, functions, globals, etc)
 class ASTProgram : public AST {
 public:
-  ASTProgram(std::vector<ASTDefPtr> &&defs)
-      : AST(obcl::Location(obcl::Location::begin_of(defs),
-                           obcl::Location::end_of(defs))),
+  ASTProgram(std::vector<ASTDefPtr> &&defs = {})
+      : AST(obcl::Location(obcl::Position(0, 0, 0, nullptr),
+                           obcl::Position(0, 0, 0, nullptr))),
         _defs(std::move(defs)) {}
 
   void accept(ASTVisitor &visitor) const override { visitor.visit(*this); }

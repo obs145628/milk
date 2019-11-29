@@ -1,6 +1,7 @@
 
 fn i32 main()
 {
-    var i32 x = 5;
+    var i32 x;
+    x = 5;
     return x;
 }

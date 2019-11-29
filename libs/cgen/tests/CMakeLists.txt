@@ -27,3 +27,13 @@ add_custom_target(check-cgen-lexer
   ${PROJECT_BINARY_DIR}
   DEPENDS cgen-test-lexer
 )
+
+add_custom_target(check-cgen-cc
+  COMMAND python3 ${CMAKE_CURRENT_SOURCE_DIR}/app/test-compiler.py
+  ${PROJECT_BINARY_DIR}
+  DEPENDS cgen-cc
+)
+
+add_custom_target(check-cgen
+  DEPENDS check-cgen-cc
+)

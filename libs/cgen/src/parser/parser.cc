@@ -11,7 +11,7 @@ namespace cgen {
 
 Parser::Parser()
     : obcl::Parser(token_infos_custom),
-      _main_ast(std::make_unique<ASTProgram>(std::vector<ASTDefPtr>{})) {}
+      _main_ast(std::make_unique<ASTProgram>()) {}
 
 void Parser::parse_file(const std::string &path) {
   _lex.set_stream_file(path);
@@ -333,7 +333,7 @@ ASTExprPtr Parser::_expr_ops02() // * / %
   while (true) {
     auto tok = _lex.peek_token();
     if (tok.type != TOK_OP_MUL && tok.type != TOK_OP_DIV &&
-        tok.type != TOK_OP_DIV)
+        tok.type != TOK_OP_MOD)
       break;
     _lex.get_token();
 
@@ -610,8 +610,10 @@ ASTExprPtr Parser::_expr_symbol() // float, int, string, identifier
 {
   auto tok = _lex.get_token();
   auto val = tok.val;
-  if (tok.type == obcl::TOK_CONST_SQ || tok.type == obcl::TOK_CONST_DQ)
+
+  if (tok.type == obcl::TOK_CONST_SQ || tok.type == obcl::TOK_CONST_DQ) {
     val = ASTExprString::decode(val.substr(1, val.size() - 2));
+  }
 
   if (tok.type == obcl::TOK_CONST_FLOAT)
     return std::make_unique<ASTExprFloat>(tok, ASTExprFloat::Type::F64);
@@ -619,6 +621,8 @@ ASTExprPtr Parser::_expr_symbol() // float, int, string, identifier
     return std::make_unique<ASTExprInt>(tok, ASTExprInt::Type::I64);
   else if (tok.type == obcl::TOK_ID)
     return std::make_unique<ASTExprId>(tok);
+  else if (tok.type == obcl::TOK_CONST_DQ)
+    return std::make_unique<ASTExprString>(tok.loc, val);
 
   throw obcl::ParserError(tok.loc,
                           "parse_expr: expected a constant or identifier");

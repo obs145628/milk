@@ -1,7 +1,7 @@
 
 
 add_custom_target(check-all-libs
-   DEPENDS check-obcl
+   DEPENDS check-cgen check-obcl
 )
 
 add_custom_target(check
