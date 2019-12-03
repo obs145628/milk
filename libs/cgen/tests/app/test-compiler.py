@@ -15,32 +15,50 @@ ERR_MSG = '''Invalid return code: expected {}, got {}
 (err):
 <BEG>{}<END>'''
 
+MODE = os.getenv('CGEN_CC_TEST', 'type')
+
 class CgenLexerTS(CgenTS):
 
     def __init__(self):
         super().__init__('cgen lexer')
         self.lexer_bin = os.path.join(self.build_dir, "bin/cgen-test-lexer")
         self.cc_bin = os.path.join(self.build_dir, "bin/cgen-cc")
+        self.std_src = os.path.join(self.samples_dir, "../../cgen-libs/cgen-std/lib.cg")
 
     def run(self, t):
         self.get_test_details(t)
+        src = [self.t_path_cg]
 
-        if self.t_err == 'lex':
-            exp_code = 1
+        if MODE == 'lexer' or self.t_err == 'lex':
+            if self.t_err == 'lex':
+                exp_code = 1
+            else:
+                exp_code = 0
             cmd = [self.lexer_bin]
 
-        elif self.t_err == 'parse':
-            exp_code = 1
+        elif MODE == 'parser' or self.t_err == 'parse':
+            if self.t_err == 'parse':
+                exp_code = 1
+            else:
+                exp_code = 0
             cmd = [self.cc_bin]
             cmd += ['--stage-parse']
+
+        elif MODE == 'type' or self.t_err == 'type':
+            if self.t_err == 'type':
+                exp_code = 1
+            else:
+                exp_code = 0
+            cmd = [self.cc_bin]
+            cmd += ['--stage-type']
+            src += [self.std_src]
  
         else:
-            exp_code = 0
-            cmd = [self.cc_bin]
-            cmd += ['--stage-parse']
+            print('Internal testsuite error: unknown mode {}'.format(MODE))
+            sys.exit(1)
         
 
-        cmd += [self.t_path_cg]                
+        cmd += src
         ret, out, err = ucmd.run_cmd(cmd)
         valid = ret == exp_code
         if valid:

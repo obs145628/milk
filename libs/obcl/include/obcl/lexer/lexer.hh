@@ -18,6 +18,7 @@
 #include <map>
 #include <memory>
 #include <set>
+#include <vector>
 
 namespace obcl {
 
@@ -115,7 +116,12 @@ private:
   /// [a-zA-Z_$][a-zA-Z0-9_$]*
   Token _read_id_or_custom_id();
 
+  /// Change the current stream
+  /// sav previous stream in _old_streams
+  void _set_stream(std::unique_ptr<Stream> &&s);
+
   std::unique_ptr<Stream> _stream;
+  std::vector<std::unique_ptr<Stream>> _old_streams;
   Token _peek;
 
   std::map<std::string, token_type_t> _custom_id;

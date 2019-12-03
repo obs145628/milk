@@ -1,4 +1,5 @@
 #include "cgen-compiler.hh"
+#include "cgen/types/type-error.hh"
 #include "obcl/lexer/lexer-error.hh"
 #include "obcl/parser/parser-error.hh"
 #include "obcl/utils/debug.hh"
@@ -8,6 +9,7 @@
 CGenCompiler::CGenCompiler() : _ast(nullptr) {}
 
 namespace {
+
 void compile_error(const std::exception &e) {
   std::cerr << "Compilation failed: " << std::endl << e.what();
   std::exit(1);
@@ -20,6 +22,8 @@ void CGenCompiler::run() {
 }
 
 void CGenCompiler::do_parse() { _tasks_todo.insert(TASK_PARSE); }
+
+void CGenCompiler::do_type() { _tasks_todo.insert(TASK_TYPE); }
 
 void CGenCompiler::_run_tasks(const std::vector<task_t> &tasks) {
   for (const auto &t : tasks)
@@ -34,6 +38,10 @@ void CGenCompiler::_run_task(task_t t) {
   case TASK_PARSE:
     _run_parse();
     break;
+  case TASK_TYPE:
+    _run_tasks({TASK_PARSE});
+    _run_type();
+    break;
   default:
     PANIC("cgen-cc: unknown task");
   };
@@ -43,14 +51,15 @@ void CGenCompiler::_run_task(task_t t) {
 
 void CGenCompiler::_run_parse() {
 
-  if (_input_file.empty()) {
+  if (_input_files.empty()) {
     PANIC("cgen-cc: no input file");
   }
 
   try {
 
     _parser = std::make_unique<cgen::Parser>();
-    _parser->parse_file(_input_file);
+    for (const auto &f : _input_files)
+      _parser->parse_file(f);
     _ast = _parser->ast();
 
   } catch (obcl::LexerError &e) {
@@ -60,4 +69,14 @@ void CGenCompiler::_run_parse() {
   }
 
   std::cout << "Got " << _ast->defs().size() << " definitions." << std::endl;
+}
+
+void CGenCompiler::_run_type() {
+
+  try {
+    _type_ctx = std::make_unique<cgen::TypeContext>();
+    _type_ctx->build(*_ast);
+  } catch (cgen::TypeError &e) {
+    compile_error(e);
+  }
 }

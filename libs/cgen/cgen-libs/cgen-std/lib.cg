@@ -1,0 +1,7 @@
+fn void* cgen_std_malloc(size: usize);
+fn void cgen_std_free(ptr: void*);
+fn void cgen_std_print_str(s: char*);
+fn void cgen_std_print_int(x: i64);
+fn void* cgen_std_memcpy(dst: void*, src: void*, count: usize);
+fn void* cgen_std_memmove(dst: void*, src: void*, count: usize);
+fn void cgen_std_exit(exit_code: i32);

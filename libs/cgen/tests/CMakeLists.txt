@@ -23,17 +23,23 @@ target_link_libraries(cgen-test-lexer obcl cgen)
 
 
 add_custom_target(check-cgen-lexer
-  COMMAND python3 ${CMAKE_CURRENT_SOURCE_DIR}/app/test-lexer.py
+  COMMAND  CGEN_CC_TEST=lexer python3 ${CMAKE_CURRENT_SOURCE_DIR}/app/test-compiler.py
   ${PROJECT_BINARY_DIR}
   DEPENDS cgen-test-lexer
 )
 
-add_custom_target(check-cgen-cc
-  COMMAND python3 ${CMAKE_CURRENT_SOURCE_DIR}/app/test-compiler.py
+add_custom_target(check-cgen-parser
+  COMMAND  CGEN_CC_TEST=parser python3 ${CMAKE_CURRENT_SOURCE_DIR}/app/test-compiler.py
+  ${PROJECT_BINARY_DIR}
+  DEPENDS cgen-cc
+)
+
+add_custom_target(check-cgen-type
+  COMMAND  CGEN_CC_TEST=type python3 ${CMAKE_CURRENT_SOURCE_DIR}/app/test-compiler.py
   ${PROJECT_BINARY_DIR}
   DEPENDS cgen-cc
 )
 
 add_custom_target(check-cgen
-  DEPENDS check-cgen-cc
+  DEPENDS check-cgen-type
 )

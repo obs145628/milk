@@ -75,17 +75,17 @@ void Lexer::set_stream_file(const std::string &path) {
     PANIC("Failed to open source file '" + path + "'");
 
   Stream is(abs_path, std::move(fs));
-  _stream = std::make_unique<Stream>(std::move(is));
+  _set_stream(std::make_unique<Stream>(std::move(is)));
 }
 
 void Lexer::set_stream_raw(const std::string &str) {
   static int raw_id = 1;
   std::string name = "(raw string:" + std::to_string(raw_id++) + ")";
   Stream is(name, std::make_unique<std::istringstream>(str));
-  _stream = std::make_unique<Stream>(std::move(is));
+  _set_stream(std::make_unique<Stream>(std::move(is)));
 }
 
-void Lexer::reset_stream() { _stream.reset(); }
+void Lexer::reset_stream() { _set_stream(nullptr); }
 
 Token Lexer::peek_token() {
   _fetch_peek();
@@ -273,6 +273,13 @@ Token Lexer::_read_id_or_custom_id() {
   auto it = _custom_id.find(val);
   auto tok_type = it != _custom_id.end() ? it->second : TOK_ID;
   return Token(Location(begin, end), tok_type, val);
+}
+
+void Lexer::_set_stream(std::unique_ptr<Stream> &&s) {
+  std::unique_ptr<Stream> prev = std::move(_stream);
+  _stream = std::move(s);
+  if (prev.get())
+    _old_streams.push_back(std::move(prev));
 }
 
 } // namespace obcl
