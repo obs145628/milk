@@ -9,6 +9,7 @@ set(SRC_LEXER
 set(SRC_UTILS
   utils/arguments-test.cc
   utils/format-string-test.cc
+  utils/path-test.cc
   utils/str-test.cc
 )
 

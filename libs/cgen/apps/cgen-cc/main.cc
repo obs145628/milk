@@ -7,6 +7,9 @@ int main(int argc, char **argv) {
   obcl::Arguments args;
   args.add_flag("stage-parse", "Parse the input file");
   args.add_flag("stage-type", "Perform semantic analysis");
+  args.add_flag("stage-ctranslate", "Run translation to C");
+  args.add_option("output", "Output file, or '-' for stdin, interpretation "
+                            "depends on the stage option");
   args.run(argc, (const char **)argv);
   if (args.other().size() < 1) {
     std::cerr << "Missing input file" << std::endl;
@@ -22,6 +25,12 @@ int main(int argc, char **argv) {
     cc.do_parse();
   if (args.has_flag("stage-type"))
     cc.do_type();
+
+  if (args.has_flag("stage-ctranslate")) {
+    cc.do_ctranslate();
+    if (args.has_option("output"))
+      cc.set_output_c_file(args.get_option("output"));
+  }
 
   cc.run();
   return 0;

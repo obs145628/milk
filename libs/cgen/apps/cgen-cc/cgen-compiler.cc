@@ -4,6 +4,7 @@
 #include "obcl/parser/parser-error.hh"
 #include "obcl/utils/debug.hh"
 #include <cstdlib>
+#include <fstream>
 #include <iostream>
 
 CGenCompiler::CGenCompiler() : _ast(nullptr) {}
@@ -25,6 +26,8 @@ void CGenCompiler::do_parse() { _tasks_todo.insert(TASK_PARSE); }
 
 void CGenCompiler::do_type() { _tasks_todo.insert(TASK_TYPE); }
 
+void CGenCompiler::do_ctranslate() { _tasks_todo.insert(TASK_CTRANSLATE); }
+
 void CGenCompiler::_run_tasks(const std::vector<task_t> &tasks) {
   for (const auto &t : tasks)
     _run_task(t);
@@ -41,6 +44,10 @@ void CGenCompiler::_run_task(task_t t) {
   case TASK_TYPE:
     _run_tasks({TASK_PARSE});
     _run_type();
+    break;
+  case TASK_CTRANSLATE:
+    _run_tasks({TASK_TYPE});
+    _run_ctranslate();
     break;
   default:
     PANIC("cgen-cc: unknown task");
@@ -79,4 +86,24 @@ void CGenCompiler::_run_type() {
   } catch (cgen::TypeError &e) {
     compile_error(e);
   }
+}
+
+void CGenCompiler::_run_ctranslate() {
+  std::ostream *os = nullptr;
+  std::ofstream os_file;
+
+  if (_output_c_file.empty()) {
+    auto path = "t";
+    os_file.open(path);
+    os = &os_file;
+  } else if (_output_c_file == "-") {
+    os = &std::cout;
+  } else {
+    os_file.open(_output_c_file);
+    os = &os_file;
+  }
+
+  assert(os);
+  _ctrans = std::make_unique<cgen::CTranslator>(*os);
+  _ctrans->compile(*_ast);
 }
