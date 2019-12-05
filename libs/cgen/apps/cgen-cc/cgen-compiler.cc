@@ -3,11 +3,12 @@
 #include "obcl/lexer/lexer-error.hh"
 #include "obcl/parser/parser-error.hh"
 #include "obcl/utils/debug.hh"
+#include "obcl/utils/path.hh"
 #include <cstdlib>
 #include <fstream>
 #include <iostream>
 
-CGenCompiler::CGenCompiler() : _ast(nullptr) {}
+CGenCompiler::CGenCompiler() : _ast(nullptr), _build_tmp(false) {}
 
 namespace {
 
@@ -28,9 +29,14 @@ void CGenCompiler::do_type() { _tasks_todo.insert(TASK_TYPE); }
 
 void CGenCompiler::do_ctranslate() { _tasks_todo.insert(TASK_CTRANSLATE); }
 
-void CGenCompiler::_run_tasks(const std::vector<task_t> &tasks) {
+void CGenCompiler::do_build_object() { _tasks_todo.insert(TASK_BUILD_OBJECT); }
+
+void CGenCompiler::_run_tasks(const std::vector<task_t> &tasks, bool is_tmp) {
+  bool old_tmp = _build_tmp;
+  _build_tmp = is_tmp;
   for (const auto &t : tasks)
     _run_task(t);
+  _build_tmp = old_tmp;
 }
 
 void CGenCompiler::_run_task(task_t t) {
@@ -41,14 +47,22 @@ void CGenCompiler::_run_task(task_t t) {
   case TASK_PARSE:
     _run_parse();
     break;
+
   case TASK_TYPE:
     _run_tasks({TASK_PARSE});
     _run_type();
     break;
+
   case TASK_CTRANSLATE:
     _run_tasks({TASK_TYPE});
     _run_ctranslate();
     break;
+
+  case TASK_BUILD_OBJECT:
+    _run_tasks({TASK_CTRANSLATE});
+    _run_build_object();
+    break;
+
   default:
     PANIC("cgen-cc: unknown task");
   };
@@ -93,8 +107,8 @@ void CGenCompiler::_run_ctranslate() {
   std::ofstream os_file;
 
   if (_output_c_file.empty()) {
-    auto path = "t";
-    os_file.open(path);
+    _output_c_file = _get_tmp_or_dft_path(_input_files.front(), ".c");
+    os_file.open(_output_c_file);
     os = &os_file;
   } else if (_output_c_file == "-") {
     os = &std::cout;
@@ -106,4 +120,25 @@ void CGenCompiler::_run_ctranslate() {
   assert(os);
   _ctrans = std::make_unique<cgen::CTranslator>(*os);
   _ctrans->compile(*_ast);
+}
+
+void CGenCompiler::_run_build_object() {
+  if (_output_object_file.empty())
+    _output_object_file = _get_tmp_or_dft_path(_input_files.front(), ".o");
+
+  std::cout << _output_object_file << std::endl;
+}
+
+std::string CGenCompiler::_get_tmp_or_dft_path(const std::string &input,
+                                               const std::string &ext) {
+  if (_build_tmp)
+    return _get_tmp_path(ext);
+
+  auto path = obcl::path::basename(input);
+  return obcl::path::split_ext(path).first + ext;
+}
+
+std::string CGenCompiler::_get_tmp_path(const std::string &suffix) {
+  static int id = 0;
+  return "tmp/cgen-cc_" + std::to_string(++id) + suffix;
 }

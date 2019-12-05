@@ -29,6 +29,9 @@ std::string basename(const std::string &p);
 /// Split a path at it's extension
 std::pair<std::string, std::string> split_ext(const std::string &p);
 
+/// Combine and normalize ./p1/p2
+std::string join(const std::string &p1, const std::string &p2);
+
 } // namespace path
 
 } // namespace obcl

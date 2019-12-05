@@ -8,6 +8,7 @@ int main(int argc, char **argv) {
   args.add_flag("stage-parse", "Parse the input file");
   args.add_flag("stage-type", "Perform semantic analysis");
   args.add_flag("stage-ctranslate", "Run translation to C");
+  args.add_flag("build-object", "Build object file (.o)");
   args.add_option("output", "Output file, or '-' for stdin, interpretation "
                             "depends on the stage option");
   args.run(argc, (const char **)argv);
@@ -30,6 +31,12 @@ int main(int argc, char **argv) {
     cc.do_ctranslate();
     if (args.has_option("output"))
       cc.set_output_c_file(args.get_option("output"));
+  }
+
+  if (args.has_flag("build-object")) {
+    cc.do_build_object();
+    if (args.has_option("output"))
+      cc.set_output_object_file(args.get_option("output"));
   }
 
   cc.run();

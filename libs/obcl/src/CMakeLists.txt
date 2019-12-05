@@ -16,6 +16,7 @@ set(PARSER_SRC
 set(UTILS_SRC
   utils/arguments.cc
   utils/debug.cc
+  utils/ipc.cc
   utils/path.cc
   utils/str.cc
 )

@@ -27,3 +27,14 @@ TEST_CASE("Test ocbl::path::split_ext", "[obcl_path_split_ext_simple") {
   REQUIRE(r3.first == "abc/def/gh.txt");
   REQUIRE(r3.second == ".gg");
 }
+
+TEST_CASE("Test ocbl::path::join simple", "[obcl_path_join_simple") {
+
+  REQUIRE(obcl::path::join("ab/cd", "ef") == "ab/cd/ef");
+  REQUIRE(obcl::path::join("ab/cd", "ef/") == "ab/cd/ef/");
+  REQUIRE(obcl::path::join("/ab/cd", "ef") == "/ab/cd/ef");
+  REQUIRE(obcl::path::join("ab/cd", "/ef") == "/ef");
+  REQUIRE(obcl::path::join("", "ef") == "ef");
+  REQUIRE(obcl::path::join("ab/cd", "") == "ab/cd");
+  REQUIRE(obcl::path::join("", "") == "");
+}
