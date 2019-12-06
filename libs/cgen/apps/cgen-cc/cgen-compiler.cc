@@ -1,5 +1,6 @@
 #include "cgen-compiler.hh"
 #include "cgen/types/type-error.hh"
+#include "obcl/bincl/compiler.hh"
 #include "obcl/lexer/lexer-error.hh"
 #include "obcl/parser/parser-error.hh"
 #include "obcl/utils/debug.hh"
@@ -31,6 +32,8 @@ void CGenCompiler::do_ctranslate() { _tasks_todo.insert(TASK_CTRANSLATE); }
 
 void CGenCompiler::do_build_object() { _tasks_todo.insert(TASK_BUILD_OBJECT); }
 
+void CGenCompiler::do_build_binary() { _tasks_todo.insert(TASK_BUILD_BINARY); }
+
 void CGenCompiler::_run_tasks(const std::vector<task_t> &tasks, bool is_tmp) {
   bool old_tmp = _build_tmp;
   _build_tmp = is_tmp;
@@ -59,8 +62,13 @@ void CGenCompiler::_run_task(task_t t) {
     break;
 
   case TASK_BUILD_OBJECT:
-    _run_tasks({TASK_CTRANSLATE});
+    _run_tasks({TASK_CTRANSLATE}, true);
     _run_build_object();
+    break;
+
+  case TASK_BUILD_BINARY:
+    _run_tasks({TASK_CTRANSLATE}, true);
+    _run_build_binary();
     break;
 
   default:
@@ -88,8 +96,6 @@ void CGenCompiler::_run_parse() {
   } catch (obcl::ParserError &e) {
     compile_error(e);
   }
-
-  std::cout << "Got " << _ast->defs().size() << " definitions." << std::endl;
 }
 
 void CGenCompiler::_run_type() {
@@ -126,7 +132,22 @@ void CGenCompiler::_run_build_object() {
   if (_output_object_file.empty())
     _output_object_file = _get_tmp_or_dft_path(_input_files.front(), ".o");
 
-  std::cout << _output_object_file << std::endl;
+  obcl::bin::Compiler cc;
+  if (_cc_debug)
+    cc.set_debug(obcl::bin::Compiler::DebugMode::L3);
+  cc.build_object(_output_c_file, _output_object_file);
+}
+
+void CGenCompiler::_run_build_binary() {
+  if (_output_binary_file.empty())
+    _output_binary_file = _get_tmp_or_dft_path(_input_files.front(), ".out");
+
+  obcl::bin::Compiler cc;
+  for (const auto &lib : _c_libs)
+    cc.add_lib(lib);
+  if (_cc_debug)
+    cc.set_debug(obcl::bin::Compiler::DebugMode::L3);
+  cc.build_bin({_output_c_file}, _output_binary_file);
 }
 
 std::string CGenCompiler::_get_tmp_or_dft_path(const std::string &input,
@@ -140,5 +161,5 @@ std::string CGenCompiler::_get_tmp_or_dft_path(const std::string &input,
 
 std::string CGenCompiler::_get_tmp_path(const std::string &suffix) {
   static int id = 0;
-  return "tmp/cgen-cc_" + std::to_string(++id) + suffix;
+  return "/tmp/cgen-cc_" + std::to_string(++id) + suffix;
 }

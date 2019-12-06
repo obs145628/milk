@@ -46,6 +46,9 @@ public:
   /// Enable the build object file (.o) task
   void do_build_object();
 
+  /// Enable the build binary task
+  void do_build_binary();
+
   void add_input_file(const std::string &input_file) {
     _input_files.push_back(input_file);
   }
@@ -61,12 +64,28 @@ public:
     _output_object_file = path;
   }
 
+  /// Output binary file
+  /// If not set, name is first-input-file.out (in current directory)
+  void set_output_binary_file(const std::string &path) {
+    _output_binary_file = path;
+  }
+
+  /// If \p opt is true, enable debug flags when compiling c flags
+  /// The debug locations are linked to the generated c file, not the original
+  /// source code
+  void set_cc_debug(bool opt) { _cc_debug = opt; }
+
+  /// Add a compiled static / shared library to be linked when building a
+  /// binary file
+  void add_c_lib(const std::string &path) { _c_libs.push_back(path); }
+
 private:
   using task_t = int;
   static constexpr task_t TASK_PARSE = 1;
   static constexpr task_t TASK_TYPE = 2;
   static constexpr task_t TASK_CTRANSLATE = 3;
   static constexpr task_t TASK_BUILD_OBJECT = 4;
+  static constexpr task_t TASK_BUILD_BINARY = 5;
 
   /// @param is_tmp - If true, all output files build during any of \p tasks are
   /// temporary files, not needed after compilation
@@ -77,6 +96,7 @@ private:
   void _run_type();
   void _run_ctranslate();
   void _run_build_object();
+  void _run_build_binary();
 
   /// @returns a default otput path, based on the \p input name, if building an
   /// output file otherwhise a temporary path for temporary file
@@ -86,13 +106,17 @@ private:
   std::string _get_tmp_path(const std::string &suffix);
 
   std::vector<std::string> _input_files;
+  std::vector<std::string> _c_libs;
   std::string _output_c_file;
   std::string _output_object_file;
+  std::string _output_binary_file;
   std::unique_ptr<cgen::Parser> _parser;
   std::unique_ptr<cgen::TypeContext> _type_ctx;
   std::unique_ptr<cgen::CTranslator> _ctrans;
   cgen::ASTProgram *_ast;
   bool _build_tmp;
+
+  bool _cc_debug;
 
   std::set<task_t> _tasks_done;
   std::set<task_t> _tasks_todo;

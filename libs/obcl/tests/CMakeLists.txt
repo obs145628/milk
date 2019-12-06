@@ -1,3 +1,6 @@
+set(SRC_BINCL
+  bincl/compiler-test.cc
+)
 
 set(SRC_LEXER
   lexer/lexer-test.cc
@@ -16,6 +19,7 @@ set(SRC_UTILS
 
 
 set(SRC
+  ${SRC_BINCL}
   ${SRC_LEXER}
   ${SRC_UTILS}
   main.cc

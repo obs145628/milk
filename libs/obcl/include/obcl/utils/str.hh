@@ -18,8 +18,8 @@ namespace obcl {
 
 namespace str {
 
-/// Split a string, using the ',' separator
-std::vector<std::string> split(const std::string &str);
+/// Split a string with the separator \p sep
+std::vector<std::string> split(const std::string &str, char sep);
 
 } // namespace str
 } // namespace obcl

@@ -40,6 +40,18 @@ add_custom_target(check-cgen-type
   DEPENDS cgen-cc
 )
 
+add_custom_target(check-cgen-compile
+  COMMAND  CGEN_CC_TEST=compile python3 ${CMAKE_CURRENT_SOURCE_DIR}/app/test-compiler.py
+  ${PROJECT_BINARY_DIR}
+  DEPENDS cgen-cc
+)
+
+add_custom_target(check-cgen-run
+  COMMAND  CGEN_CC_TEST=run python3 ${CMAKE_CURRENT_SOURCE_DIR}/app/test-compiler.py
+  ${PROJECT_BINARY_DIR}
+  DEPENDS cgen-cc
+)
+
 add_custom_target(check-cgen
-  DEPENDS check-cgen-type
+  DEPENDS check-cgen-run
 )
