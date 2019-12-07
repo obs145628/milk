@@ -15,6 +15,8 @@ What must be done to have a working V0 compiler:
 
 ## Building
 
+Tested with clang++ 10
+
 ```shell
 git submodule update --init --recursive
 mkdir _build
