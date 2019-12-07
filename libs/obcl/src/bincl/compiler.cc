@@ -61,6 +61,7 @@ void Compiler::_run_cl(const std::vector<std::string> &args) const {
   cmd.run();
   cmd.wait();
   int ret = cmd.retcode();
+  (void)ret;
   assert(ret == 0);
 }
 
