@@ -1,0 +1,22 @@
+[V0]
+
+A boolean is implemented as a struct, but with some custom operators,
+and cast rules
+
+struct ImplBool
+{
+    val: i32
+}
+
+Operations
+
+See operators for more informations
+We can only compare booleans.
+@TODO: update operators
+
+We can static cast from bool to any scalar, and the other way.
+val can only be 0 or 1, so the cast assure this using usual bool conversion.
+
+The language define some constants:
+- true (val = 1) 
+- false (val = 0)

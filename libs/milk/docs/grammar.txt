@@ -1,0 +1,141 @@
+
+The grammer is defined top-down.
+The definition use shortcuts to make clear definitions.
+
+Syntax:
+Lexer tokens: 'str' (eg: 'struct' or '+') for fixed value token, or @name (eg: @id, @int, @str) for token type
+non-terminal parser rule: rulename
+
+rule definiton:
+
+rulename:   ...
+	  | ...
+	  | ...
+
+
+Optional syntax in a rule: [ ... ]
+
+List: x+: match x 1+ times, x*: match x 0+ times
+
+Empty rule: ((empty))
+
+
+[V0]
+
+This is the grammar for the V0 version:
+
+file: def+ @eof
+
+def:   fundef
+     | aliasef
+     | structdef
+     | enumdef
+
+fundef: 'fn' @id '(' <fundef_argslist> ')' ':' <typelabel> <statement>
+
+fundef_argslist:   <fundef_arg> (',' <fundef_arg>)*
+		 | ((empty))
+
+fundef_arg: @id ':' <typelabel>
+
+aliasdef: 'type' @id '=' <typelabel> ';'
+
+structdef: 'struct' @id '{' <structdef_field>+ '}' ';'
+
+structdef_field:   structdef_attr
+		 | structdef_meth
+
+
+structdef_attr:   'let' @id ':' <typelabel> ';'
+		| 'const' @id ':' <typelabel> ';'
+
+
+structdef_meth: 'fn' @id '(' <fundef_argslist> ')' ['const'] ':' <typelabel> <statement>
+
+
+enumdef: 'enum' @id [':' <typelabel>] '{' <enumdef_field>+ '}' ';'
+
+enumdef_field: @id ['=' @int] ';'
+
+typelabel:   <valuetypelabel>
+	   | '&' <valuetypelabel>
+	   | '&const' <valuetypelabel>
+	   | '&[]' <valuetypelabel>
+	   | '&[]const' <valuetypelabel>
+
+valuetypelabel: @id
+
+
+
+statement: 
+	     statement_block
+	   | statement_expr
+	   | statement_vardef
+	   | statement_if
+	   | statement_while
+	   | statement_break
+	   | statement_continue
+	   | statement_return
+
+
+statement_block: '{' <statement>* '}'
+
+statement_expr: <expr> ';'
+
+statement_vardef:   'let' @id [':' <typelabel>] '=' <expr> ';'
+		  | 'const' @id [':' <typelabel>] '=' <expr> ';'
+
+statement_if: 'if' '(' <expr> ')' <statement> ['else' <statement>] ;ambiguity: else always connected to the closest if
+
+statement_while: 'while' '(' <expr> ')' <statement>
+
+statement_break: 'break' ';'
+
+statement_continue: 'continue' ';'
+
+statement_return: 'return' [expr>] ';'
+
+expr: expr_12
+
+expr_12:   expr11
+	 | expr_11 ('=' | '*=' | '/=' | '%=' | '-=') expr_12
+
+expr_11:   expr_10
+	 | expr_10 '?' expr_11 ':' expr_11
+
+
+expr_10: expr_9 ('||' expr_9)*
+
+expr_9: expr_8 ('&&' expr_8)*
+
+expr_8: expr_7 ('|' expr_7)*
+
+expr_7: expr_6 ('^' expr_6)*
+
+expr_6: expr_5 ('&' expr_5)*
+
+expr_5: expr_4 (('==' | '!=') expr_4)*
+
+expr_4: expr_3 (('<' | '>' | '<=' | '>=') expr_3)*
+
+expr_3: expr_2 (('<<' | '>>') expr_2)*
+
+expr_1: expr_0 (('+' | '-') expr_0)*
+
+expr_2: expr_1 (('*' | '/' | '%') expr_1)*
+
+expr_1:   expr_0
+	| ('+' | '-' | '~' | '!') expr_1
+
+
+expr_0:   expr_atom
+	| expr_atom '(' expr_call_list ')'
+	| expr_atom '[' expr ']'
+	| expr_atom '.' @id
+
+
+expr_atom:   '(' expr ')'
+	   | @int
+	   | @float
+	   | @str ;single-quotes: char
+	   | @id

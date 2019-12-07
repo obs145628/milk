@@ -1,0 +1,55 @@
+[V0]
+
+There is no modules, just a list of files to compile.
+Files can refer to definition from other files, and cannot redefine a symbol.
+It's like concatenate all files in one (with unspecified order), and compile this file.
+
+Each file is it's own module (except V0 they are all combined)
+
+A module is just a list of definitions (there is no forward declaration)
+
+The possible kinds of definition are:
+
+- type alias definition:
+type <name> = <ValueType> ; (aliases cannot be on ref types)
+
+- struct definition:
+struct <name> {
+ ...
+} ;
+
+a struct contains a list of nested definitions:
+
+- struct attribute definition:
+let / const <name> : <Type>;
+
+- struct method definiton:
+fn <name> (<argname1>: <argtype1>, ...) [const] : <rettype> <body>
+
+
+
+- enum definition
+'enum' <name> [': <inttype>] {
+   <name1> [= val1];
+   <name2> [= val2];
+   ...
+};
+
+
+- function definition:
+fn <name> (<argname1>: <argtype1>, ...): <rettype> <body>
+
+
+There is no ordering requirements, we can use a type, function, attribute or method before its definition.
+The only rule is that a struct cannot contains a value of itself (but a reference is alright).
+This rule is about storage: x struct data representation cannot contains another x struct (but a pointer is OK)
+
+
+
+
+
+[V-MOD] Modules system
+
+@TODO
+
+

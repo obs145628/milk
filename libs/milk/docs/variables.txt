@@ -1,0 +1,65 @@
+[V0]
+
+Variables can be of any types, and are allocated on the stack.
+
+They are defined as:
+
+let / const <name> [: <type>] '=' <value> ';'
+
+The type is optional, if ignored, it corespondants exactly to the type of the actual type.
+It means, if the expr is a value, the value is moved to the object,
+If it's a reference, we get a reference.
+
+If the variable is 'const', we cannot change it: accessing the var gives us a const-ref.
+
+For references, we can only create consts, we cannot change the ptr anyway.
+The variable 'const' is different from the 'const-ref'.
+
+We cannot define 2 variables with the same name in the same scope.
+
+A variable is alive for the whole scope ('{' exprs[] '}').
+At the end, the variable is dropped and the destructor is called.
+
+
+Variable assignement: 
+All variables must have an initial value.
+The assignment is done by calling this function:
+__var_assign(dst: U&, src: U): void;
+it symply moves src into dst.
+
+
+The same method is used for argument passing to a function.
+
+[V-SARRAY]
+
+You can create variables as static arrays.
+
+'let' | 'const' <name> '[' [<size>] ']' ':' <item-type> '=' '[' expr1, expr2, ... ']';
+eg:
+let my_arr[]: i32 = [5, 6, 7];
+
+To itinitialize all the values the same, you can do:
+'let' | 'const' <name> '[' [<size>] ']' [':' <item-type> ] '=' <size> 'of' expr
+eg:
+let buff[]: char = 128 of 0
+
+When access the variable, we get a &[] or &[]const (if the the variable if const)
+
+eg:
+let ptr: &[] i32 = buff;
+ptr[2] = my_arr[0] + ptr[1];
+
+We can also use static array for any other kinds of storage.
+Eg for struct:
+
+struct A
+{
+    let x: i32;
+    let buff[5]: char 
+}
+
+let v = A { x: 5, buff: 5 of 0 }
+let b: &[] char = v.buff;
+
+
+For global static arrays, see globals page

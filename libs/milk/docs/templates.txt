@@ -1,0 +1,65 @@
+[V-TPROG]
+
+Templates allows us to write code at compile time.
+It can define new structs, or implementations of structs, or functions, based on some types.
+
+A template declaration 
+template {type <typename> ':' conds, type <typename> ':', ...}
+struct Foo
+{
+...
+}
+
+for each type we must add some conditions.
+The declaration is valid only for the types that respect the conditions.
+Conditions are mostly concepts that must be implemented.
+
+
+Use a template.
+For structs, we need to define which type to use explicitly:
+Foo{i8}::new();
+
+Their must be only one template definition for that struct matching these types. If they are severals,
+the compiler wouldn't know which one to take, and returns an error.
+Be also carefull when matching several implementations at the same time.
+If they have the same signture, the call will be ambiguous.
+
+For functions, no need to precise the types, they can be resolved with arguments.
+More informations on the function section for overloading and resolution.
+It's still possible to precise them:
+foo{i8}();
+
+
+
+
+
+let x: int[] = array{int}(50); //create array of 50 elements
+
+
+struct shared_ref{T}
+{
+	
+}
+
+template{T} class Vector
+{
+	let x: T;
+	let y: T;
+
+	def Vector(x: T, y: T) : void
+	{
+		this.x = x;
+		this.y = y;
+	}
+
+	def translate(dx: T, dy: T) : void
+	{
+		this.x += dx;
+		this.y += dy;
+	}
+};
+
+template{T} def vector_zeros(): Vector{T}
+{
+	return Vector{T}(static_cast{T}(0), static_cast{T}(0));
+}

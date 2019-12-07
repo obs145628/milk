@@ -1,0 +1,77 @@
+
+[V0]
+Implicit casting
+
+
+Implicit casting can be done for:
+
+- cast from any scalar type to any other scalar type
+- cast from T& to T
+
+It is performed when:
+- calling a function: casting every argument to the type of argument def
+- declaring / setting a variable:  casting the expr to the real variable type
+- using operators: for more informations, see operators
+
+
+Explicit casting:
+
+[V0]
+Casting functions
+
+These are special functions, automatically defined by the language.
+int8(x: T), int16(x: T), ...
+defined for all types with implicit casting rules (scalar, bool and enums)
+The call for F(x: T) is only valid if static_cast{F}(x: T) is valid.
+They works exactly like static_cast.
+So why have static_cast ? static_cast is a template function, and can be used as such.
+Casting functions has no templates features (so it must be a true type)
+
+[V-CASTS]
+
+Constant Cast:
+
+Can remove the constantness in a type.
+
+const_cast is a language keywork, and requires a type template argument:
+const_cast{T}(x)
+It can be expressed as a function (just for interpretation)
+def f(x: U): T
+
+only works for:
+- &T -> &T, &T -> &const T, &const T -> &T, &const T -> &const T
+- &[]T -> &[]T, &[]T -> &[]const T, &[]const T -> &[]T, &[]const T -> &[]const T
+
+The template argument isn't really usefull right now, 
+but like this it works as other casts,
+and it might be usefull in future versions of the language.
+
+
+Static cast:
+Change the scalar type (or underlying scalar type)
+Cast from value to value.
+
+static_cast is a language keywork, and requires a type template argument:
+static_cast{T}(x)
+It can be expressed as a function (just for interpretation)
+def f(x: U): T
+
+only works for native types:
+- scalar to scalar (exactly like using the scalar type constructors)
+- boolean to scalar: true => 1, false => 0
+- scalar to boolean: x != 0
+- enum to scalar: cast from underlying value of the enum
+- scalar to enum: cast to the udnerlying type of the enum, doesn't check if in valid range.
+
+
+Bytes cast
+Cast from a type to another, of same size.
+Works for value and refs
+
+bytes_cast is a language keyword, and requires a type template argument:
+bytes_cast{T}(x)
+It can be expressed as a function (only for interpretation):
+def f(x: U): T
+def f(x: &U): &T
+def f(x: &const U): &const T
+U and T must have the same size (in bytes)

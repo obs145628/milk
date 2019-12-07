@@ -1,0 +1,49 @@
+These are features for other versions.
+They are only ideas, and may never be implemented:
+
+
+[V-NAT]
+Native code.
+Allows combining with other C functions, and pointer usage
+
+[V-MEM-GC]
+Gargbage collector system.
+
+
+[V-RET-REF]
+We can return a reference type in some special cases:
+- The value we want to return if from a program ref.
+
+- The value comes from one of the arguments.
+In this case, the callee simply copy the ref.
+The caller makes sure the ref doesn't break
+depending on how it made the ref before call.
+Eg: from a shared, the hidden shared stays alive.
+
+
+
+
+[V-NAT]
+The body is optionial. It means the function is defined elsewhere (from another object file)
+Resolved at link time
+
+eg: 
+def sqrt(x: f64) -> f64;
+
+By defaut, the name mangling is activated. We can use c naming with a decorator:
+
+@attr("cdef")
+def sqrt(x: f64) -> f64;
+
+
+
+[V-NAT]
+
+Pointer operators (deref, addres of)
+
+*x : U* => U&
+&x: U& => U*
+
+[V-NAT] Pointer type:
+type*
+Native low level pointer 

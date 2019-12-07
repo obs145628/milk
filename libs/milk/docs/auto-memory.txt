@@ -1,0 +1,227 @@
+Systems to automatically manage the memory
+
+[V-MEM-PREF]
+
+Program ref.
+
+A program reference live for the whole program. The destructor does nothing, and the copy simply copy the bytes.
+This could be used for global data, or for access to any kind of memory that isn't managed by the variable holder.
+
+struct program_ref{T};
+
+__operator_deref(): &T
+__operator_deref() const: &const T
+Returns the underlying ref.
+
+[V-MEM-ARRAY]
+
+There is also a Program ref version for arrays:
+
+struct program_ref_array{T};
+
+__operator_deref(): &[]T
+__operator_deref() const: &[]const T
+Returns the underlying array_ref.
+
+size() const: u64
+Returns the size of the array
+
+__operator_subscript(idx: u64): &type
+__operator_subscript(idx: u64) const: &const type
+Returns a ref to an item fo the array.
+Panic if the index is out of bounds
+
+
+[V-MEM-SMART]
+
+unique_ref 
+Allocates an item on the heap.
+It's automatically deleted when it goes out of scope.
+
+struct unique_ref{T};
+
+static new(): unique_ref{T};
+create a unique_ref without associated data.
+
+static new(x: T): unique_ref<T>;
+allocate on the heap and move x.
+returns a unique ptr
+
+reset(): void
+reset the ptr to nullptr, delete the data;
+
+is_null() const: bool
+check if the ptr is set.
+
+__operator_deref(): T&
+__operator_deref() const: or T &const
+Returns a reference to the contained value.
+panic if the ptr is null.
+!! Causes special behaviour !!
+
+__drop(): void
+Call the destructor on the data and release the memory
+
+Deref special behaviour
+When a ref is stored (variable declaration or function argument),
+if the actual object source is a unique_ref, 
+The unique_ref is moved to a new mock variable.
+it is defined in the same scope than the ref, and is destroyed at the same time.
+When it goes_out of the scope, the unique_ref is moved back to the orignal variable.
+
+[V-MEM-ARRAY]
+
+When T is [] or []const, the implementation differs:
+
+There is also a unique_ref version for allocating arrays
+
+struct unique_ref_array{T};
+
+static new(size: 64): unique_ref_array{T} where {T: Default} (default constructor)
+
+static new(items: T&[]const): unique_ref_array{T} where {T: Copy}
+
+const size(): u64
+Returns the size of the array
+Panic if ptr si null
+
+__operator_deref(): &[]T
+__operator_deref() const: &[]const T
+Returns an array_ref.
+Panic if the ptr is null.
+!! Same special behaviour  than unique_ref{T}!!
+
+__operator_subscript(idx: u64): &T
+__operator_subscript(idx: u64) const: &const T
+Return a ference to item.
+Panic if ptr is null, or index is invalid.
+!! Same special behaviour !!
+
+__drop(): void
+Call the destructor on every item of the array and release the memory
+
+
+[V-MEM-SMART]
+shared_ref 
+Allocates an item on the heap.
+Counts the number of references to the data.
+Delete it when the counter is at 0.
+It doesn't prevent reference cycles.
+
+struct shared_ref{T};
+
+static new(): shared_ref{T};
+create a unique_ref without associated data.
+
+static new(x: T): shared_ref<T>;
+allocate on the heap and move x.
+returns a shared_ref
+
+reset(): void
+update counter.
+reset the ptr to nullptr, delete the data if the counter is 0.
+
+is_null() const: bool
+check if the ptr is set.
+
+__operator_deref(): &T
+__operator_deref() const: &const T
+Returns a reference to the contained value.
+panic if the ptr is null.
+!! Causes special behavious !!
+
+__drop(): void
+update counter.
+Delete the data if the counter is 0.
+( Call the destructor on the data and release the memory)
+
+__copy() const: shared_ref{T}
+Create a new shared_ref
+The ptr points to the same data
+Update the counter
+
+Deref special behaviour
+When a ref is stored (variable declaration or function argument),
+if the actual source object is a shared_ref, 
+The shared_ref is copied to a new mock variable.
+it is defined in the same scope than the ref, and is destroyed at the same time.
+
+
+[V-MEM-ARRAY]
+
+There is also an array version for shared_ref
+
+struct shared_ref_array{T};
+
+static new(size: 64): shared_ref_array{T} where {T: Default} (default constructor)
+
+static new(items: T&[]const): shared_ref_array{T} where {T: Copy}
+
+const size(): u64
+Returns the size of the array
+Panic if ptr si null
+
+__operator_deref(): &[] T
+__operator_deref() const: &[]const T
+Returns an array_ref.
+Panic if the ptr is null.
+!! Same special behaviour as shared_ref{T} !!
+
+__operator_subscript(idx: u64): &T
+__operator_subscript(idx: u64) const: &const T
+Return a reference to item.
+Panic if ptr is null, or index is invalid.
+!! Same special behaviour !!
+
+__drop(): void
+Call the destructor on every item of the array and release the memory
+
+
+
+[V-MEM-SMART]
+weak_ref
+Holds a weak reference to a data managed by a shared_ref
+The underlying data is destroyed when there is no associated shared_ref
+(even if they are still weak_ref)
+To access the data, we need to convert it to a shared_ref first.
+This operation fails is the object was already destroyed.
+
+struct weak_ref{T}
+
+static new(): shared_ref{T};
+create a weak_ref without associated data.
+
+static new(sr: shared_ref<T>): weak_ref<T>;
+Create a weak_ref that access the same data than st.
+If st data is null, the result data will also be null.
+
+reset(): void
+update counter.
+reset the ptr to nullptr
+
+is_null() const: bool
+check if the ptr is set.
+(it doesn't test if the ptr is still valid)
+
+expired() const: bool
+check if the underlying data has been already deleted.
+If the data is null, return false;
+
+get() const: shared_ref{T}
+Create a new shared_ref to the ptr.
+If there is no data, or it has already been cleared,
+returns an empty one.
+
+__drop(): void
+update counter
+
+__copy(): shared_ref{T}
+Create a new weak_ref
+The ptr points to the same data
+Update the counter
+
+
+
+
+@TODO
+weak_ref for arrays

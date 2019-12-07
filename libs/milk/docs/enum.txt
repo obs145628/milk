@@ -1,0 +1,26 @@
+[V0]
+
+Enum are represented in memory as integer scalar, but can only be used as an enumeration of values.
+By default it's i32, but it can be changed to another type.
+
+enum MyEnum : u8
+{
+    FOO = 0;
+    BAR; //1
+    AB; //2
+    CD;= 5,
+    EF; //6
+};
+
+Define a type MyEnum, and values MyEnum::FOO, MyEnum::BAR,... of type MyEnum.
+The values must be integers
+
+@TODO: later versions, accept const expressions
+
+Operations:
+
+See operators
+The only possible operations are to compare them.
+It's possible to do a static cast from scalar to enum, and the other way.
+It's exactly as a static_cast using the true underlying type.
+@TODO: update operators

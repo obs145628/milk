@@ -1,0 +1,98 @@
+# Types
+
+A type represent a data layout for some information. 
+All types have data type known at compile time.
+
+Types can be divided into 2 big categories: Value Types vs Ref Types
+
+
+## Value Types
+
+[V0] Scalar types:
+u8, u16, u32, u64, i8, i16, i32, i64, f32, f64
+
+[V0] void type.
+It signifies the absence of type, we cannot have any storage def to a void.
+It can only be used for templates, and to say a function return a void value.
+
+[V0] struct types:
+struct {key1: type1, key2: type2, ...}
+C-like struct.
+
+
+[V0] boolean
+true / false
+See boolean for more infos
+
+[V0] Enum
+<name> {val1, val2, ...}
+See enums for more infos
+
+
+## Ref Types
+
+
+[V0] Reference type:
+& type or &const type
+This is implemented as a pointer (fixed size addr).
+The pointer must always be initialized and cannot be changed.
+The language makes sure that it always points to a valid memory address.
+It is used exactly at would be used the real type.
+&const means the value it refers to cannot be modified.
+It refers to a const storage memory.
+
+[V0] Reference to array type:
+&[] type or &[]const type.
+This is implemented as a pointer + size.
+Like for references, the underlying data is always initialzied, const, and valid.
+There is only two operations:
+
+const size(): u64
+const __operator_subscript(idx: u64): &type or &const type
+Returns a reference to an item. &const if the array is &[]const.
+Panic if the index is invalid.
+
+For & T and &[] T, T must be a value type: there is no reference to reference.
+
+
+
+## Type aliases
+
+[V0] To simplyfy type notation, we can create aliases.
+type <name> = <ValueType>;
+
+## Native type aliases
+
+The language define some specific type alises:
+
+usize: unisgned with size of a pointer
+isize: signed with size of a pointer
+
+char: i8
+@TODO: compiler option to change i8/u8
+
+
+
+## Copy vs Move
+
+[V0]
+Copy operation: copy all informations from src mem to dst mem.
+AT the end, both are valid.
+All basic types except the struct implement the default copy (memcpy)
+This is for small types, and should be really fast.
+To copy large amounts of data, better to use a clone() method.
+
+Move operation: Move everything from src to dst.
+src won't be used after the move.
+The move implementation simply copy the bytes from src to dst, for all types. It cannot be changed for any type.
+
+## Constantness:
+
+Variables (or any other form or storage) can be const
+By default it's mutable.
+Const means we cannot modify the underlying stored value.
+A value cannot be const.
+const by itself doesn't belong to the type (const ref is different)
+
+
+

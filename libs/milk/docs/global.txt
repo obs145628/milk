@@ -1,0 +1,52 @@
+[V-GLOBAL]
+
+Static data: Data that lives through all the program
+Located on the data section.
+We can store global variables of any type, the only restriction is that it must be evaluated at compile time.
+A global must have a value.
+
+Syntax:
+global <name>: <type> = <const-expr>
+
+eg:
+global g_running: bool = false;
+
+The symbol is defined and accessible anywhere in the code.
+Accessing it gives us a program_ref{T}
+
+eg:
+let my_run: program_ref{bool} = g_running;
+*g_running = true;
+
+[V-GLOBAL]
+Lazy initialiation: Evaluate the variables at run-time, on the first access.
+With this method, the constant restriction is removed.
+
+global lazy g_running: bool = {
+    return false;
+}
+
+Acessing the variable is identical as globals
+let my_run: program_ref{bool} = g_running;
+
+[V-GLOBAL-ARRAY]
+
+Really similar to static data, but as an array.
+Can be initialized with an array of const expressions, at compile time.
+Accessing it gives us a program_ref{T[]}
+
+Syntax:
+global <name> []: <type> = <const-array-expr>
+
+eg: 
+global g_arr[]: i32 = [4, 5, 7];
+
+let my_arr: &[] i32 = *g_arr;
+
+We can aslo perfor lazy initialization:
+
+global lazy g_arr[]: i32 = {
+    return ...;
+}
+the return type must be a &[] T. All the items will be moved to the global.
+

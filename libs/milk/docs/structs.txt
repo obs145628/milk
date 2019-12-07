@@ -1,0 +1,108 @@
+[V0] 
+struct are the closest form to OOP
+
+struct can contain fields of any type 
+(except &, compiler cannot safely assume it will always be valid)
+fields can be const (their value cannot be changed)
+
+[V0-HACK]
+Struct can contain reference members.
+Incentive: can cause memory corruption, but only way to use heap allocated mem in V0
+
+It can also contains methods
+Methods are defined like any other functions.
+Except they can have a const attribute to say the object isn't modified
+Inside the method, there is an automatically defined argument self.
+It is of type &Self or const &Self.
+Actually, a method is a function with another parameter for &Self.
+
+
+
+[V-MOD]
+Every field / method can have a visibility specifier: public / private
+Private members are only accessible from within the struct.
+
+Static
+We can define a static method (does not need a class instance).
+We use 'static fn'
+
+[V-GLOBAL]
+We can define a static variable.
+This is exaclty like a global variable,
+except it's scoped to the class
+
+Constructor / destructor:
+
+Each class destructor that does nothing, can be changed.
+After the destructor of the class is called, the destructor of all it's members is also called.
+The destruction order is undefined.
+
+The class has no constructor method. To construct a new imstance,
+the syntax is: ClassName (fields ). all fields must be defined.
+(Like a function call with named arguments)
+
+Important methods:
+
+Importants methods are either:
+- common methods, but that are often used as a paradigm
+- Special methods, they start with '__', 
+and have a special signification for the compiler.
+some methods may have a default implementation, for some requirements.
+You cans use '=default' to use it.
+
+[SPECIAL] __copy(): Self (Copy concept)
+Copy constructor for an object.
+This is only implemented for which the copy would be really fast
+Default implem simply copies all the bytes. 
+Most of the time that's what you want to do.
+Not defined by default.
+The default can only be used if every fields have the Copy concept
+
+
+[SPECIAL] __drop(): void
+Called before object destruction. Does nothing by default.
+
+clone() const: Self (Clone concept)
+Create a deep full, long copy of the object.
+
+
+static new() : Self (Default concept)
+Create an object with the default initialization
+Default implem simply call the default implem on all child classes
+The default can only be used if every fields have the Default Concept
+
+
+Struct and constantness:
+When we manipulate a constant struct, we can only call const methods.
+What's more, every accessed field is a const-reference.
+
+For const field, when we try to access it, we get a const-reference.
+
+
+Example:
+
+struct Vec2f
+{
+
+    fn __copy() const : Vec2f = default;
+
+    static fn new(x: f32, y: f32) : Vec2f {
+        return Vec2f (
+            _x: x,
+            _y: y
+        )
+    }
+
+    static fn zero(): Vec2f
+    {
+        return Vec2::new(0, 0);
+    }
+
+    fn get_x() const : f32 { return self._x; }
+    fn get_y() const : f32 { return self._y; }
+
+    
+
+    let _x: f32;
+    let _y: f32;
+}

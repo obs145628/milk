@@ -1,0 +1,68 @@
+
+The language is build incrmentally.
+It starts with a baseline version, [V0], 
+that allows a really basic language.
+Actually [V0] can do too little to be considered a real language, 
+but this is the basics for all other features.
+
+All other versions are small increments to the [V0], to add features.
+They can be done in any order, except some requires other methods.
+
+
+
+[V0]
+Native type + struct + methods + enums.
+All the code in one file.
+
+[V0-HACK]
+These are hacky features for the V0, in order to replace some important features of the language that appear later.
+They may require hacky features on the compiler to be implemented.
+Will be removed on later versions once they become useless.
+
+[V-ARRAY]
+Add arrays as a safe reference
+
+[V-CASTS]
+Compile-time casts: static, const, bytes
+
+[V-CONCEPT]
+Allows concept definitions
+
+[V-GLOBAL]: [V-MEM-PREF]
+Get / set global variables
+
+[V-GLOBAL-ARRAY]: [V-MEM-ARRAY]
+Global variables as array
+
+[V-ITERATOR]
+Iterators over array-like objects
+
+[V-MEN-PREF]: [V-TPROG]
+A reference that lives through the whole program.
+
+[V-MEM-SMART]: [V-TPROG]
+unique_ptr + shared_ptr + weak_ptr
+
+[V-MEM-ARRAY]: [V_ARRAY], [V-MEM-PREF], [V-MEM-SMART]
+Special versions of program_ptr, unique_ptr, shared_ptr, and weak_ptr, for array types
+
+[V-MEM-GC]
+Garbage collector
+
+[V-MOD]
+Module system
+
+[V-OP-OVERLOAD]
+Operator overloading, call some special functions / methods if available
+
+[V-FN-OVERLOAD]
+We can have function and methods with same names, but a different signature.
+
+[V-SARRAY]: [V-ARRAY]
+Static size array type
+
+[V-TPROG] 
+Template programming
+
+[V-UNION]
+Type-safe union, with a flag to know current type

@@ -1,0 +1,50 @@
+
+[V0]
+
+putchar(c: i32): i32
+Wrapper for putchar (3)
+
+getchar(): i32
+Wrapper for getchar (3)
+
+[V0-HACK]
+
+v0h_infinite_ref(x: T): & T
+Move an object to heap allocated space, and returns a ref.
+This object is never deleted.
+
+v0h_infinite_array_ref(len: usize, x: &const T): &[] T
+Create a new array in heap allocated space, of size len, with all values initizalied at x.
+The bytes of x are simply copied to every element of the array, no matter the behavior of copy/clone
+This array is never deleted.
+
+
+
+
+[V-???]
+
+Specials functions:
+
+fn swap(x: T&, y: T&) : void
+
+Exchange the bytes of the 2 vars (x and y)
+
+fn take(x: T&) : T
+
+T must implement the Default concept, move x to the return value, and set x to the default value.
+
+Defined types:
+
+char = i8
+short = i16
+int = i32
+long = i64
+size_t = u64
+
+Defined classes:
+
+class String
+{
+	char[] data;
+	size_t size
+};

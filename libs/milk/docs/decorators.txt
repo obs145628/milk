@@ -1,0 +1,20 @@
+Decorators Can be used to add some properties to some definitions.
+
+I don't want to have really powerfull Decorators.
+It' only for basic specific stuff, like c naming, struct packing, aligning, etc...
+
+
+Syntax:
+@<name>(str) <def>
+
+It can only be attached to:
+- function definition
+- struct definition
+- global variable definition
+
+eg:
+@attr("cdef")
+void exit(retcode: i32);
+
+[V0]
+Decorators are parsed, but they have absolutely no effect

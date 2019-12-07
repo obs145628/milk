@@ -1,0 +1,24 @@
+[V-Concept]
+
+A concept defines a list of requirements that must be defined by a type
+
+concept Vector2 {
+    def x(): float
+    def y(): float
+    def clone(): Type::Self
+
+    def __constructor__(Type::self);
+}
+
+A concept is defined by a list of requirements
+One requirement can be:
+
+Function def: make sure a type implement a specific method
+(with corresponding signature)
+
+Inside the concept, the Type is defined, that contains specific information,
+relative to the type implementing the concept
+- Type::Self: The Corresponding self type.
+
+@TODO
+TagConcept: no requirements, but we must say explicitely if ta type (not just struct) has this concept.

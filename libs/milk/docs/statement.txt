@@ -1,0 +1,66 @@
+A statement is what represent actual source code that get executed at runtime.
+
+A statement can be find in multiple locations of the source file:
+
+[V0]
+- the function / method body is a statement
+
+
+
+They are several kind of statements:
+
+[V0]
+
+- StatementBlock:
+'{' statements list ... ''}'
+Combine multiple statements in one. This block is a scope.
+All variables defined in that sope are deleted at the end of the scope (in undefined order)
+
+
+- StatementExpr:
+<expr> ';'
+The statement is simply an expression, more infos in expr
+
+
+- StatementVarDef
+<vardef> ';'
+The statement declare an initialize a new variable, more infos in variables
+
+
+- StatatementIf
+if (condition) <codeif...> [else <codeelse...>]
+
+condition must be executed. codeif executed if condition, otherwhise execute codeelse (if defined)
+
+There is an ambiguity in the grammar with if ... else if ... else ... Last else is connected to the closer if.
+
+
+
+- StatementWhile
+while (condition) <body>
+Executes the loop body as long as the condition is true.
+
+
+- StatementBreak
+break;
+Must be inside a loop, break from the current inner loop
+
+
+- StatementContinue
+continue;
+Must be inside a loop, go back to the beginning (execute the condition again)
+
+- StatementReturn
+return <val> ;
+Leave the function and return the specific value.
+The expr type must be the same than the return type of the function.
+For void function, it's we can use return to simply leave the function: 'return;'
+
+
+@TODO: return
+
+
+@TODO: for loop (iteration, not just C-like) (not for V0)
+
+
+@TODO: switch : case (not for V0)
