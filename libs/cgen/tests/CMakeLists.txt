@@ -31,25 +31,25 @@ add_custom_target(check-cgen-lexer
 add_custom_target(check-cgen-parser
   COMMAND  CGEN_CC_TEST=parser python3 ${CMAKE_CURRENT_SOURCE_DIR}/app/test-compiler.py
   ${PROJECT_BINARY_DIR}
-  DEPENDS cgen-cc
+  DEPENDS cgen-cc cgen-test-lexer
 )
 
 add_custom_target(check-cgen-type
   COMMAND  CGEN_CC_TEST=type python3 ${CMAKE_CURRENT_SOURCE_DIR}/app/test-compiler.py
   ${PROJECT_BINARY_DIR}
-  DEPENDS cgen-cc
+  DEPENDS cgen-cc cgen-test-lexer
 )
 
 add_custom_target(check-cgen-compile
   COMMAND  CGEN_CC_TEST=compile python3 ${CMAKE_CURRENT_SOURCE_DIR}/app/test-compiler.py
   ${PROJECT_BINARY_DIR}
-  DEPENDS cgen-cc
+  DEPENDS cgen-cc cgen-test-lexer
 )
 
 add_custom_target(check-cgen-run
   COMMAND  CGEN_CC_TEST=run python3 ${CMAKE_CURRENT_SOURCE_DIR}/app/test-compiler.py
   ${PROJECT_BINARY_DIR}
-  DEPENDS cgen-cc
+  DEPENDS cgen-cc cgen-test-lexer
 )
 
 add_custom_target(check-cgen
