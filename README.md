@@ -12,3 +12,20 @@ What must be done to have a working V0 compiler:
 - Implement semantic analysis for V0
 - Implement conversion from Milk AST to cgen Ast
 - Implement C runtime and standard library code
+
+## Building
+
+```shell
+mkdir _build
+cd _build
+cmake ..
+make 
+```
+
+## Testing
+
+python3 required for testing
+
+```shell
+make check
+```
