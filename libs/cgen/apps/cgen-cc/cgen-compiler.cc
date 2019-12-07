@@ -9,6 +9,12 @@
 #include <fstream>
 #include <iostream>
 
+constexpr CGenCompiler::task_t CGenCompiler::TASK_PARSE;
+constexpr CGenCompiler::task_t CGenCompiler::TASK_TYPE;
+constexpr CGenCompiler::task_t CGenCompiler::TASK_CTRANSLATE;
+constexpr CGenCompiler::task_t CGenCompiler::TASK_BUILD_OBJECT;
+constexpr CGenCompiler::task_t CGenCompiler::TASK_BUILD_BINARY;
+
 CGenCompiler::CGenCompiler() : _ast(nullptr), _build_tmp(false) {}
 
 namespace {
