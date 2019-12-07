@@ -21,5 +21,6 @@ include_directories("libs/obcl/include/")
 include_directories("libs/cgen/include/")
 
 add_subdirectory(apps)
+add_subdirectory(doc)
 add_subdirectory(libs)
 add_subdirectory(tests)

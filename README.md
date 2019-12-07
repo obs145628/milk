@@ -29,3 +29,11 @@ python3 required for testing
 ```shell
 make check
 ```
+
+## Documentation
+
+doxygen and dot required
+
+```shell
+make doc
+```
