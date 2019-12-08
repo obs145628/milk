@@ -31,28 +31,40 @@ void print_arr(int *arr, size_t len) {
   putchar('\n');
 }
 
-void swap(int *x, int *y) {
-  int tmp = *x;
-  *x = *y;
-  *y = tmp;
+void merge(int *arr, size_t beg, size_t m, size_t end) {
+  size_t len = end - beg;
+  char *tmp = malloc(len * sizeof(int));
+
+  size_t i1 = beg;
+  size_t i2 = m;
+
+  for (size_t i = 0; i < len; ++i) {
+    if (i2 >= end || (i1 < m && arr[i1] < arr[i2]))
+      tmp[i] = arr[i1++];
+    else
+      tmp[i] = arr[i2++];
+  }
+
+  for (size_t i = 0; i < len; ++i)
+    arr[beg + i] = tmp[i];
+
+  free(tmp);
 }
 
-void insertion_sort(int *arr, size_t len) {
-  if (len <= 2)
+void mergesort(int *arr, size_t beg, size_t end) {
+  size_t len = end - beg;
+  if (len < 2)
     return;
 
-  for (size_t i = 1; i < len; ++i) {
-
-    int val = arr[i];
-    size_t j;
-    for (j = i; j > 0 && arr[j - 1] > val; --j)
-      arr[j] = arr[j - 1];
-    arr[j] = val;
-  }
+  size_t m = beg + (end - beg + 1) / 2;
+  mergesort(arr, beg, m);
+  mergesort(arr, m, end);
+  merge(arr, beg, m, end);
 }
 
 int main() {
   int *arr = malloc(11 * sizeof(int));
+
   arr[0] = 13;
   arr[1] = -4;
   arr[2] = 7;
@@ -66,7 +78,7 @@ int main() {
   arr[10] = -1;
 
   print_arr(arr, 11);
-  insertion_sort(arr, 11);
+  mergesort(arr, 0, 11);
   print_arr(arr, 11);
 
   return 0;

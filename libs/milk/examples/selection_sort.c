@@ -57,6 +57,7 @@ int main() {
   arr[2] = 7;
   arr[3] = 12;
   arr[4] = -6;
+  arr[5] = 3;
   arr[6] = 7;
   arr[7] = 45;
   arr[8] = -4;
