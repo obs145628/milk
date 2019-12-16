@@ -3,22 +3,21 @@
 
 namespace milk {
 
-/*
-  void ASTVisitor::visit(const ASTDefFun& ast)
-  {
-      accept(ast.ret_type());
-      for (const auto& arg: ast.args())
-          accept(*arg.first);
-      if (ast.has_body())
-          accept(ast.body());
-  }
+void ASTVisitor::visit(const ASTDefAlias &ast) { accept(ast.type()); }
 
-*/
+void ASTVisitor::visit(const ASTDefFun &ast) {
+  for (const auto &arg : ast.args())
+    accept(*arg.second);
+  accept(ast.ret_type());
+  accept(ast.body());
+}
 
 void ASTVisitor::visit(const ASTProgram &ast) {
   for (const auto &def : ast.defs())
     accept(*def);
 }
+
+void ASTVisitor::visit(const ASTNamedStorage &ast) { accept(ast.type()); }
 
 void ASTVisitor::visit(const ASTTypeLabelName &) {}
 

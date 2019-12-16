@@ -33,6 +33,9 @@ public:
 
   // default visitors, recursive call through children
   // virtual void visit(const ASTDefFun &ast);
+  virtual void visit(const ASTDefAlias &ast);
+  virtual void visit(const ASTDefFun &ast);
+  virtual void visit(const ASTNamedStorage &ast);
   virtual void visit(const ASTProgram &ast);
   virtual void visit(const ASTTypeLabelName &ast);
   virtual void visit(const ASTTypeLabelRef &ast);
