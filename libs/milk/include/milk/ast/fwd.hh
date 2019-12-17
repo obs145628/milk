@@ -15,7 +15,6 @@
 
 #include <memory>
 #include <string>
-#include <utility>
 #include <vector>
 
 #define FORWARD_AST(NAME)                                                      \
@@ -27,7 +26,10 @@ namespace milk {
 FORWARD_AST(AST)
 FORWARD_AST(ASTDef)
 FORWARD_AST(ASTDefAlias)
+FORWARD_AST(ASTDefEnum)
 FORWARD_AST(ASTDefFun)
+FORWARD_AST(ASTDefStruct)
+FORWARD_AST(ASTDefVar)
 FORWARD_AST(ASTNamedStorage)
 FORWARD_AST(ASTProgram)
 FORWARD_AST(ASTStmt)
@@ -37,7 +39,8 @@ FORWARD_AST(ASTTypeLabelRef)
 
 class ASTVisitor;
 
-using named_ast_types_t = std::vector<std::pair<std::string, ASTTypeLabelPtr>>;
+using ast_storage_list_t = std::vector<ASTNamedStoragePtr>;
+using ast_defs_list_t = std::vector<ASTDefPtr>;
 
 } // namespace milk
 

@@ -36,7 +36,7 @@ fundef: 'fn' @id '(' <fundef_argslist> ')' ':' <typelabel> <statement>
 fundef_argslist:   <fundef_arg> (',' <fundef_arg>)*
 		 | ((empty))
 
-fundef_arg: @id ':' <typelabel>
+fundef_arg: ['const'] @id ':' <typelabel>
 
 aliasdef: 'type' @id '=' <typelabel> ';'
 
@@ -46,8 +46,7 @@ structdef_field:   structdef_attr
 		 | structdef_meth
 
 
-structdef_attr:   'let' @id ':' <typelabel> ';'
-		| 'const' @id ':' <typelabel> ';'
+structdef_attr:   'let'|'const' @id ':' <typelabel> ';'
 
 
 structdef_meth: 'fn' @id '(' <fundef_argslist> ')' ['const'] ':' <typelabel> <statement>

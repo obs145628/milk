@@ -14,7 +14,10 @@
 #pragma once
 
 #include "ast-def-alias.hh"
+#include "ast-def-enum.hh"
 #include "ast-def-fun.hh"
+#include "ast-def-struct.hh"
+#include "ast-def-var.hh"
 #include "ast-def.hh"
 #include "ast-named-storage.hh"
 #include "ast-program.hh"
