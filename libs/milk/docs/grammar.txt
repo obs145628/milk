@@ -81,8 +81,7 @@ statement_block: '{' <statement>* '}'
 
 statement_expr: <expr> ';'
 
-statement_vardef:   'let' @id [':' <typelabel>] '=' <expr> ';'
-		  | 'const' @id [':' <typelabel>] '=' <expr> ';'
+statement_vardef:   'let'|'const' @id [':' <typelabel>] '=' <expr> ';'
 
 statement_if: 'if' '(' <expr> ')' <statement> ['else' <statement>] ;ambiguity: else always connected to the closest if
 

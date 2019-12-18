@@ -30,9 +30,14 @@ FORWARD_AST(ASTDefEnum)
 FORWARD_AST(ASTDefFun)
 FORWARD_AST(ASTDefStruct)
 FORWARD_AST(ASTDefVar)
+FORWARD_AST(ASTExpr)
 FORWARD_AST(ASTNamedStorage)
 FORWARD_AST(ASTProgram)
 FORWARD_AST(ASTStmt)
+FORWARD_AST(ASTStmtBlock)
+FORWARD_AST(ASTStmtExpr)
+FORWARD_AST(ASTStmtIf)
+FORWARD_AST(ASTStmtVar)
 FORWARD_AST(ASTTypeLabel)
 FORWARD_AST(ASTTypeLabelName)
 FORWARD_AST(ASTTypeLabelRef)
@@ -41,6 +46,7 @@ class ASTVisitor;
 
 using ast_storage_list_t = std::vector<ASTNamedStoragePtr>;
 using ast_defs_list_t = std::vector<ASTDefPtr>;
+using ast_stmts_list_t = std::vector<ASTStmtPtr>;
 
 } // namespace milk
 

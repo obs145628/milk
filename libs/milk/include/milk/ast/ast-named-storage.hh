@@ -33,6 +33,7 @@ public:
 
   const std::string &name() const { return _name; }
   bool is_const() const { return _const; }
+  bool has_type() const { return _type.get() != nullptr; }
   const ASTTypeLabel &type() const { return *_type; }
 
 private:

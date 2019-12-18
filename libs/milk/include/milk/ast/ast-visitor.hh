@@ -40,6 +40,10 @@ public:
   virtual void visit(const ASTDefVar &ast);
   virtual void visit(const ASTNamedStorage &ast);
   virtual void visit(const ASTProgram &ast);
+  virtual void visit(const ASTStmtBlock &ast);
+  virtual void visit(const ASTStmtExpr &ast);
+  virtual void visit(const ASTStmtIf &ast);
+  virtual void visit(const ASTStmtVar &ast);
   virtual void visit(const ASTTypeLabelName &ast);
   virtual void visit(const ASTTypeLabelRef &ast);
 

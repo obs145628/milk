@@ -28,6 +28,24 @@ void ASTVisitor::visit(const ASTProgram &ast) {
     accept(*def);
 }
 
+void ASTVisitor::visit(const ASTStmtBlock &ast) {
+  for (const auto &st : ast.stmts())
+    accept(*st);
+}
+
+void ASTVisitor::visit(const ASTStmtExpr &ast) { accept(ast.expr()); }
+
+void ASTVisitor::visit(const ASTStmtIf &ast) {
+  accept(ast.cond());
+  accept(ast.if_stmt());
+  accept(ast.else_stmt());
+}
+
+void ASTVisitor::visit(const ASTStmtVar &ast) {
+  accept(ast.storage());
+  accept(ast.init());
+}
+
 void ASTVisitor::visit(const ASTTypeLabelName &) {}
 
 void ASTVisitor::visit(const ASTTypeLabelRef &ast) { accept(ast.type()); }
