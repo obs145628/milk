@@ -21,7 +21,12 @@ void ASTVisitor::visit(const ASTDefStruct &ast) {
 
 void ASTVisitor::visit(const ASTDefVar &ast) { accept(ast.storage()); }
 
-void ASTVisitor::visit(const ASTNamedStorage &ast) { accept(ast.type()); }
+void ASTVisitor::visit(const ASTExprNumber &) {}
+
+void ASTVisitor::visit(const ASTNamedStorage &ast) {
+  if (ast.has_type())
+    accept(ast.type());
+}
 
 void ASTVisitor::visit(const ASTProgram &ast) {
   for (const auto &def : ast.defs())
@@ -33,6 +38,8 @@ void ASTVisitor::visit(const ASTStmtBlock &ast) {
     accept(*st);
 }
 
+void ASTVisitor::visit(const ASTStmtBreak &) {}
+
 void ASTVisitor::visit(const ASTStmtExpr &ast) { accept(ast.expr()); }
 
 void ASTVisitor::visit(const ASTStmtIf &ast) {
@@ -41,9 +48,19 @@ void ASTVisitor::visit(const ASTStmtIf &ast) {
   accept(ast.else_stmt());
 }
 
+void ASTVisitor::visit(const ASTStmtReturn &ast) {
+  if (ast.has_val())
+    accept(ast.val());
+}
+
 void ASTVisitor::visit(const ASTStmtVar &ast) {
   accept(ast.storage());
   accept(ast.init());
+}
+
+void ASTVisitor::visit(const ASTStmtWhile &ast) {
+  accept(ast.cond());
+  accept(ast.body());
 }
 
 void ASTVisitor::visit(const ASTTypeLabelName &) {}
