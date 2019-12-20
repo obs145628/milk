@@ -38,7 +38,11 @@ public:
   virtual void visit(const ASTDefFun &ast);
   virtual void visit(const ASTDefStruct &ast);
   virtual void visit(const ASTDefVar &ast);
+  virtual void visit(const ASTExprCall &ast);
+  virtual void visit(const ASTExprField &ast);
+  virtual void visit(const ASTExprId &ast);
   virtual void visit(const ASTExprNumber &ast);
+  virtual void visit(const ASTExprSpecial &ast);
   virtual void visit(const ASTNamedStorage &ast);
   virtual void visit(const ASTProgram &ast);
   virtual void visit(const ASTStmtBlock &ast);

@@ -12,7 +12,7 @@
 
 #pragma once
 
-#include "ast.hh"
+#include "ast-expr.hh"
 #include <cassert>
 #include <cstdint>
 
@@ -20,17 +20,17 @@ namespace milk {
 
 /// AST node for constant number
 /// int or float constant
-class ASTExprNumber : public AST {
+class ASTExprNumber : public ASTExpr {
 public:
   enum class Kind { U64, F64, CHAR };
 
   ASTExprNumber(const obcl::Location &loc, Kind kind, std::uint64_t val)
-      : AST(loc), _kind(kind), _v_int(val) {
+      : ASTExpr(loc), _kind(kind), _v_int(val) {
     assert(kind == Kind::U64 || kind == Kind::CHAR);
   }
 
   ASTExprNumber(const obcl::Location &loc, Kind kind, double val)
-      : AST(loc), _kind(kind), _v_float(val) {
+      : ASTExpr(loc), _kind(kind), _v_float(val) {
     assert(kind == Kind::F64);
   }
 

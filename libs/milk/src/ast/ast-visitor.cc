@@ -21,7 +21,22 @@ void ASTVisitor::visit(const ASTDefStruct &ast) {
 
 void ASTVisitor::visit(const ASTDefVar &ast) { accept(ast.storage()); }
 
+void ASTVisitor::visit(const ASTExprCall &ast) {
+  accept(ast.callee());
+  for (const auto &arg : ast.args())
+    accept(*arg);
+}
+
+void ASTVisitor::visit(const ASTExprField &ast) { accept(ast.val()); }
+
+void ASTVisitor::visit(const ASTExprId &) {}
+
 void ASTVisitor::visit(const ASTExprNumber &) {}
+
+void ASTVisitor::visit(const ASTExprSpecial &ast) {
+  for (const auto &op : ast.operands())
+    accept(*op);
+}
 
 void ASTVisitor::visit(const ASTNamedStorage &ast) {
   if (ast.has_type())
