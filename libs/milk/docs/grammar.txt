@@ -31,7 +31,7 @@ def:   fundef
      | structdef
      | enumdef
 
-fundef: 'fn' @id '(' <fundef_argslist> ')' ':' <typelabel> <statement>
+fundef: 'fn' @id '(' <fundef_argslist> ')' ':' <typelabel> <stmt>
 
 fundef_argslist:   <fundef_arg> (',' <fundef_arg>)*
 		 | ((empty))
@@ -49,7 +49,7 @@ structdef_field:   structdef_attr
 structdef_attr:   'let'|'const' @id ':' <typelabel> ';'
 
 
-structdef_meth: 'fn' @id '(' <fundef_argslist> ')' ['const'] ':' <typelabel> <statement>
+structdef_meth: 'fn' @id '(' <fundef_argslist> ')' ['const'] ':' <typelabel> <stmt>
 
 
 enumdef: 'enum' @id [':' <typelabel>] '{' <enumdef_field>+ '}' ';'
@@ -66,32 +66,32 @@ valuetypelabel: @id
 
 
 
-statement: 
-	     statement_block
-	   | statement_expr
-	   | statement_vardef
-	   | statement_if
-	   | statement_while
-	   | statement_break
-	   | statement_continue
-	   | statement_return
+stmt: 
+	     stmt_block
+	   | stmt_expr
+	   | stmt_vardef
+	   | stmt_if
+	   | stmt_while
+	   | stmt_break
+	   | stmt_continue
+	   | stmt_return
 
 
-statement_block: '{' <statement>* '}'
+stmt_block: '{' <stmt>* '}'
 
-statement_expr: <expr> ';'
+stmt_expr: <expr> ';'
 
-statement_vardef:   'let'|'const' @id [':' <typelabel>] '=' <expr> ';'
+stmt_vardef:   'let'|'const' @id [':' <typelabel>] '=' <expr> ';'
 
-statement_if: 'if' '(' <expr> ')' <statement> ['else' <statement>] ;ambiguity: else always connected to the closest if
+stmt_if: 'if' '(' <expr> ')' <stmt> ['else' <stmt>] ;ambiguity: else always connected to the closest if
 
-statement_while: 'while' '(' <expr> ')' <statement>
+stmt_while: 'while' '(' <expr> ')' <stmt>
 
-statement_break: 'break' ';'
+stmt_break: 'break' ';'
 
-statement_continue: 'continue' ';'
+stmt_continue: 'continue' ';'
 
-statement_return: 'return' [expr>] ';'
+stmt_return: 'return' [expr>] ';'
 
 expr: expr_12
 
