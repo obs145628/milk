@@ -12,16 +12,16 @@
 
 #pragma once
 
+#include "ast-def.hh"
 #include "ast-stmt.hh"
 #include "ast-visitor.hh"
-#include "ast.hh"
 #include <string>
 
 namespace milk {
 
 /// Represent a function definition in milk language, with its prototype and its
 /// body
-class ASTDefFun : public AST {
+class ASTDefFun : public ASTDef {
 public:
   enum class Kind { FUN, METH, METH_CONST };
 
@@ -29,7 +29,7 @@ public:
   ASTDefFun(const obcl::Location &beg_loc, Kind kind, const std::string &name,
             ast_storage_list_t &&args, ASTTypeLabelPtr &&ret_type,
             ASTStmtPtr &&body)
-      : AST(obcl::Location(beg_loc, body->loc())), _kind(kind), _name(name),
+      : ASTDef(obcl::Location(beg_loc, body->loc())), _kind(kind), _name(name),
         _args(std::move(args)), _ret(std::move(ret_type)),
         _body(std::move(body)) {}
 

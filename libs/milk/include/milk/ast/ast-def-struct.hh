@@ -12,20 +12,20 @@
 
 #pragma once
 
+#include "ast-def.hh"
 #include "ast-visitor.hh"
-#include "ast.hh"
 #include <string>
 
 namespace milk {
 
 /// Represent a struct definition, with all its fields
-class ASTDefStruct : public AST {
+class ASTDefStruct : public ASTDef {
 public:
   /// @param beg_loc location of 'struct'
   /// @param end_loc location of ';'
   ASTDefStruct(const obcl::Location &beg_loc, const obcl::Location &end_loc,
                const std::string &name, ast_defs_list_t &&fields)
-      : AST(obcl::Location(beg_loc, end_loc)), _name(name),
+      : ASTDef(obcl::Location(beg_loc, end_loc)), _name(name),
         _fields(std::move(fields)) {}
 
   void accept(ASTVisitor &visitor) const override { visitor.visit(*this); }

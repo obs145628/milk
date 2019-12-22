@@ -13,19 +13,19 @@
 
 #pragma once
 
+#include "ast-def.hh"
 #include "ast-visitor.hh"
-#include "ast.hh"
 #include <string>
 
 namespace milk {
 
 /// AST Node to defined a type alias
 /// eg: type counter_t = i16;
-class ASTDefAlias : public AST {
+class ASTDefAlias : public ASTDef {
 public:
   ASTDefAlias(const obcl::Location &beg_loc, const obcl::Location &end_loc,
               const std::string &name, ASTTypeLabelPtr &&type)
-      : AST(obcl::Location(beg_loc, end_loc)), _name(name),
+      : ASTDef(obcl::Location(beg_loc, end_loc)), _name(name),
         _type(std::move(type)) {}
 
   void accept(ASTVisitor &visitor) const override { visitor.visit(*this); }

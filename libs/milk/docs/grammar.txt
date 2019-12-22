@@ -118,15 +118,15 @@ expr_4: expr_3 (('<' | '>' | '<=' | '>=') expr_3)*
 
 expr_3: expr_2 (('<<' | '>>') expr_2)*
 
-expr_1: expr_0 (('+' | '-') expr_0)*
+expr_2: expr_1 (('+' | '-') expr_1)*
 
-expr_2: expr_1 (('*' | '/' | '%') expr_1)*
+expr_1: expr_unop (('*' | '/' | '%') expr_unop)*
 
-expr_1:   expr_0
-	| ('+' | '-' | '~' | '!') expr_1
+expr_unop:   expr_prim
+	| ('+' | '-' | '~' | '!') expr_unop
 
 
-expr_0:   expr_atom
+expr_prim:   expr_atom
 	| expr_atom '(' expr_call_list ')'
 	| expr_atom '[' expr ']'
 	| expr_atom '.' @id

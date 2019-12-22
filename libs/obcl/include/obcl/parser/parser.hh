@@ -13,6 +13,7 @@
 #pragma once
 
 #include "../lexer/lexer.hh"
+#include <initializer_list>
 #include <set>
 #include <string>
 
@@ -51,6 +52,19 @@ protected:
   /// @returns the type of the current token
   /// Doesn't cunsome it
   token_type_t _peek_type();
+
+  /// @returns true if the current token is one of the types
+  /// Doesn't consume it
+  bool _peek_any_of(const std::initializer_list<token_type_t> &types);
 };
+
+inline bool
+Parser::_peek_any_of(const std::initializer_list<token_type_t> &types) {
+  auto ptype = _peek_type();
+  for (const auto &t : types)
+    if (t == ptype)
+      return true;
+  return false;
+}
 
 } // namespace obcl

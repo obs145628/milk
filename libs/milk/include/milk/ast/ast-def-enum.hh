@@ -12,8 +12,8 @@
 
 #pragma once
 
+#include "ast-def.hh"
 #include "ast-visitor.hh"
-#include "ast.hh"
 #include <string>
 #include <utility>
 #include <vector>
@@ -23,7 +23,7 @@ namespace milk {
 /// AST Node for an enum definition
 /// A milk enum is simply a list of values
 /// It is internally represented by an integer type
-class ASTDefEnum : public AST {
+class ASTDefEnum : public ASTDef {
 public:
   using fields_t = std::vector<std::pair<std::string, int>>;
 
@@ -32,7 +32,7 @@ public:
   ASTDefEnum(const obcl::Location &beg_loc, const obcl::Location &end_loc,
              const std::string &name, ASTTypeLabelPtr &&type,
              const fields_t &fields)
-      : AST(obcl::Location(beg_loc, end_loc)), _name(name),
+      : ASTDef(obcl::Location(beg_loc, end_loc)), _name(name),
         _type(std::move(type)), _fields(fields) {}
 
   void accept(ASTVisitor &visitor) const override { visitor.visit(*this); }

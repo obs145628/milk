@@ -128,6 +128,61 @@ private:
 
   // expr: expr_12
   ASTStmtExpr _r_expr();
+
+  // expr_12:  expr11
+  //	     | expr_11 ('=' | '*=' | '/=' | '%=' | '-=') expr_12
+  ASTStmtExpr _r_expr_12();
+
+  // expr_11:  expr_10
+  //	     | expr_10 '?' expr_11 ':' expr_11
+  ASTStmtExpr _r_expr_11();
+
+  // expr_10: expr_9 ('||' expr_9)*
+  ASTStmtExpr _r_expr_10();
+
+  // expr_9: expr_8 ('&&' expr_8)*
+  ASTStmtExpr _r_expr_9();
+
+  // expr_8: expr_7 ('|' expr_7)*
+  ASTStmtExpr _r_expr_8();
+
+  // expr_7: expr_6 ('^' expr_6)*
+  ASTStmtExpr _r_expr_7();
+
+  // expr_6: expr_5 ('&' expr_5)*
+  ASTStmtExpr _r_expr_6();
+
+  // expr_5: expr_4 (('==' | '!=') expr_4)*
+  ASTStmtExpr _r_expr_5();
+
+  // expr_4: expr_3 (('<' | '>' | '<=' | '>=') expr_3)*
+  ASTStmtExpr _r_expr_4();
+
+  // expr_3: expr_2 (('<<' | '>>') expr_2)*
+  ASTStmtExpr _r_expr_3();
+
+  // expr_2: expr_1 (('+' | '-') expr_1)*
+  ASTStmtExpr _r_expr_2();
+
+  // expr_1: expr_unop (('*' | '/' | '%') expr_unop)*
+  ASTStmtExpr _r_expr_1();
+
+  // expr_unop:  expr_prim
+  //	    | ('+' | '-' | '~' | '!') expr_unop
+  ASTStmtExpr _r_expr_unop();
+
+  // expr_prim:  expr_atom
+  //	    | expr_atom '(' expr_call_list ')'
+  //	    | expr_atom '[' expr ']'
+  //	    | expr_atom '.' @id
+  ASTStmtExpr _r_expr_prim();
+
+  // expr_atom:  '(' expr ')'
+  //	       | @int
+  //	       | @float
+  //	       | @str ;single-quotes: char
+  //	       | @id
+  ASTStmtExpr _r_expr_atom();
 };
 
 } // namespace milk
