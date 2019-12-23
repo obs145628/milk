@@ -52,12 +52,13 @@ private:
   ASTDefPtr _r_def();
 
   // fundef: 'fn' @id '(' <fundef_argslist> ')' ':' <typelabel> <stmt>
-  //
+  ASTDefFunPtr _r_fundef();
+
   // fundef_argslist:  <fundef_arg> (',' <fundef_arg>)*
   //		     | ((empty))
   //
   // fundef_arg: ['const'] @id ':' <typelabel>
-  ASTDefFunPtr _r_fundef();
+  ast_storage_list_t _r_fundef_argslist();
 
   // aliasdef: 'type' @id '=' <typelabel> ';'
   ASTDefAliasPtr _r_aliasdef();
@@ -88,7 +89,7 @@ private:
   //	       | '&[]const' <valuetypelabel>
   //
   // valuetypelabel: @id
-  ASTTypeLabelPtr _r_typelbale();
+  ASTTypeLabelPtr _r_typelabel();
 
   // stmt:
   //	     stmt_block

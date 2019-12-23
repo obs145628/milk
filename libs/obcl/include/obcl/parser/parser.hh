@@ -34,6 +34,12 @@ public:
 protected:
   Lexer _lex;
 
+  /// Convenient shortcut for _lex.peek_token()
+  Token _peek_token() { return _lex.peek_token(); }
+
+  /// Convenient shortcut for _lex.get_token()
+  Token _get_token() { return _lex.get_token(); }
+
   /// consume the next token
   /// throws a ParserError if not of correct type
   /// mess is only used to describe errpr
@@ -42,12 +48,13 @@ protected:
   // try to consume a token as an identifier
   // throws a ParserError if invalid token
   // mess only used to describe errpr
-  Token _consume_id(const std::string &mess);
+  std::string _consume_id(const std::string &mess);
 
   /// If the next token type is \p type, consumes it
   /// Otherwhise doesn nothing
-  /// Returns if the token was consumed
-  bool _consume_if_type(token_type_t type);
+  /// @param out_tok if not null, store tje consumed token
+  /// Returns tru if the token was consumed
+  bool _consume_if_type(token_type_t type, Token *out_tok = nullptr);
 
   /// @returns the type of the current token
   /// Doesn't cunsome it
@@ -57,6 +64,19 @@ protected:
   /// Doesn't consume it
   bool _peek_any_of(const std::initializer_list<token_type_t> &types);
 };
+
+inline std::string Parser::_consume_id(const std::string &mess) {
+  return _consume_of_type(TOK_ID, mess).val;
+}
+
+inline bool Parser::_consume_if_type(token_type_t type, Token *out_tok) {
+  if (_peek_type() != type)
+    return false;
+  auto tok = _lex.get_token();
+  if (out_tok)
+    *out_tok = tok;
+  return true;
+}
 
 inline bool
 Parser::_peek_any_of(const std::initializer_list<token_type_t> &types) {

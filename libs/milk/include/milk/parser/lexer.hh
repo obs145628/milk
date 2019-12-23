@@ -23,6 +23,17 @@ static constexpr obcl::token_type_t TOK_KW_LET = 1304;
 static constexpr obcl::token_type_t TOK_KW_CONST = 1305;
 static constexpr obcl::token_type_t TOK_KW_ENUM = 1306;
 
+static constexpr obcl::token_type_t TOK_SYM_LCBRAC = 1401;
+static constexpr obcl::token_type_t TOK_SYM_RCBRAC = 1402;
+static constexpr obcl::token_type_t TOK_SYM_LRBRAC = 1403;
+static constexpr obcl::token_type_t TOK_SYM_RRBRAC = 1404;
+static constexpr obcl::token_type_t TOK_SYM_LSBRAC = 1405;
+static constexpr obcl::token_type_t TOK_SYM_RSBRAC = 1406;
+static constexpr obcl::token_type_t TOK_SYM_COMA = 1407;
+static constexpr obcl::token_type_t TOK_SYM_SEMI = 1408;
+static constexpr obcl::token_type_t TOK_SYM_COLON = 1409;
+static constexpr obcl::token_type_t TOK_SYM_DOT = 1410;
+
 extern const obcl::Lexer::CustomTokenInfos token_infos_custom[];
 
 } // namespace milk

@@ -27,7 +27,7 @@ void Parser::parse_string(const std::string &str) {
 ASTProgramPtr Parser::_program() {
   std::vector<ASTDefPtr> defs;
   while (true) {
-    Token tok = _lex.peek_token();
+    Token tok = _peek_token();
     if (tok.type != TOK_KW_FN && tok.type != TOK_KW_STRUCT &&
         tok.type != TOK_KW_TYPE && tok.type != TOK_KW_VAR)
       break;
@@ -41,7 +41,7 @@ ASTProgramPtr Parser::_program() {
 }
 
 ASTDefPtr Parser::_def() {
-  Token tok = _lex.peek_token();
+  Token tok = _peek_token();
   if (tok.type == TOK_KW_FN)
     return _fundef();
   else if (tok.type == TOK_KW_STRUCT)
@@ -64,17 +64,17 @@ ASTDefFunPtr Parser::_fundef() {
   _consume_of_type(TOK_SYM_RPAREN, "parse_fundef: expected ')'");
 
   ASTInstrPtr body = nullptr;
-  auto tok = _lex.peek_token();
+  auto tok = _peek_token();
   obcl::Location end_loc = tok.loc;
 
   if (tok.type == TOK_SYM_SEMI) {
-    _lex.get_token();
+    _get_token();
   } else {
     body = _instr();
     end_loc = body->loc();
   }
 
-  return std::make_unique<ASTDefFun>(beg_tok.loc, end_loc, name.val,
+  return std::make_unique<ASTDefFun>(beg_tok.loc, end_loc, name,
                                      std::move(ret_type), std::move(args),
                                      std::move(body));
 }
@@ -88,7 +88,7 @@ ASTDefStructPtr Parser::_structdef() {
   _consume_of_type(TOK_SYM_RCBRACK, "parse_structdef: expected '}'");
   auto end_tok =
       _consume_of_type(TOK_SYM_SEMI, "parse_structdef: expected ';'");
-  return std::make_unique<ASTDefStruct>(beg_tok.loc, end_tok.loc, name.val,
+  return std::make_unique<ASTDefStruct>(beg_tok.loc, end_tok.loc, name,
                                         std::move(fields));
 }
 
@@ -99,7 +99,7 @@ ASTDefTypePtr Parser::_typedef() {
   _consume_of_type(TOK_SYM_EQ, "parse_typedef: expected '='");
   auto type = _typeid();
   auto end_tok = _consume_of_type(TOK_SYM_SEMI, "parse_typedef: expected ';'");
-  return std::make_unique<ASTDefType>(beg_tok.loc, end_tok.loc, name.val,
+  return std::make_unique<ASTDefType>(beg_tok.loc, end_tok.loc, name,
                                       std::move(type));
 }
 
@@ -113,7 +113,7 @@ ASTDefVarPtr Parser::_vardef() {
     val = _expr();
 
   auto end_tok = _consume_of_type(TOK_SYM_SEMI, "parse_vardef: expected ':'");
-  return std::make_unique<ASTDefVar>(beg_tok.loc, end_tok.loc, name.val,
+  return std::make_unique<ASTDefVar>(beg_tok.loc, end_tok.loc, name,
                                      std::move(type), std::move(val));
 }
 
@@ -123,7 +123,7 @@ ast_args_def_t Parser::_fieldsdef() {
 
   while (true) {
 
-    Token tok = _lex.peek_token();
+    Token tok = _peek_token();
     if (tok.type != obcl::TOK_ID)
       break;
 
@@ -131,7 +131,7 @@ ast_args_def_t Parser::_fieldsdef() {
       throw obcl::ParserError(tok.loc, "parse_fieldsdef: expected ','");
     missing_comma = true;
 
-    auto name = _lex.get_token().val;
+    auto name = _get_token().val;
     _consume_of_type(TOK_SYM_COLON, "parse_fieldsdef: expected ':'");
     auto type = _typeid();
     fields.emplace_back(std::move(type), name);
@@ -144,7 +144,7 @@ ast_args_def_t Parser::_fieldsdef() {
 }
 
 ASTInstrPtr Parser::_instr() {
-  Token tok = _lex.peek_token();
+  Token tok = _peek_token();
   if (tok.type == TOK_SYM_LCBRACK)
     return _instrblock();
   else if (tok.type == TOK_KW_BREAK)
@@ -240,7 +240,7 @@ ASTInstrVarPtr Parser::_instrvar() {
   auto type = _typeid();
   auto name = _consume_id("parse_instrvar: expected variable name");
   auto end_tok = _consume_of_type(TOK_SYM_SEMI, "parse_instrvar: expected ';'");
-  return std::make_unique<ASTInstrVar>(beg_tok.loc, end_tok.loc, name.val,
+  return std::make_unique<ASTInstrVar>(beg_tok.loc, end_tok.loc, name,
                                        std::move(type));
 }
 
@@ -256,14 +256,14 @@ ASTInstrWhilePtr Parser::_instrwhile() {
 }
 
 ASTTypeIdPtr Parser::_typeid() {
-  auto name = _consume_id("parse_typeid: expected typename");
+  auto name = _consume_of_type(obcl::TOK_ID, "parse_typeid: expected typename");
   ASTTypeIdPtr res = std::make_unique<ASTTypeIdName>(name);
 
   while (true) {
-    auto tok = _lex.peek_token();
+    auto tok = _peek_token();
     if (tok.type != TOK_OP_MUL)
       break;
-    _lex.get_token();
+    _get_token();
     res = std::make_unique<ASTTypeIdPointer>(tok.loc, std::move(res));
   }
 
@@ -276,12 +276,12 @@ ASTExprPtr Parser::_expr_ops00() // () [] .
 {
   auto left = _expr0();
   while (true) {
-    auto tok = _lex.peek_token();
+    auto tok = _peek_token();
     if (tok.type != TOK_SYM_LPAREN && tok.type != TOK_SYM_DOT)
       break;
 
     if (tok.type == TOK_SYM_LPAREN) {
-      _lex.get_token();
+      _get_token();
       auto args = _expr_call_list();
       auto end_tok =
           _consume_of_type(TOK_SYM_RPAREN, "parse_expr: expected ')'");
@@ -290,8 +290,9 @@ ASTExprPtr Parser::_expr_ops00() // () [] .
     }
 
     else {
-      _lex.get_token();
-      auto field = _consume_id("parse_expr: expected field name");
+      _get_token();
+      auto field =
+          _consume_of_type(obcl::TOK_ID, "parse_expr: expected field name");
       left = std::make_unique<ASTExprField>(std::move(left), field);
     }
   }
@@ -301,12 +302,12 @@ ASTExprPtr Parser::_expr_ops00() // () [] .
 
 ASTExprPtr Parser::_expr_ops01() //* & - ! ~ (RTL unary ops)
 {
-  auto tok = _lex.peek_token();
+  auto tok = _peek_token();
   if (tok.type != TOK_OP_MUL && tok.type != TOK_OP_BAND &&
       tok.type != TOK_OP_SUB && tok.type != TOK_OP_NOT &&
       tok.type != TOK_OP_BNOT)
     return _expr_ops00();
-  _lex.get_token();
+  _get_token();
 
   auto val = _expr_ops01();
   if (tok.type == TOK_OP_MUL)
@@ -331,11 +332,11 @@ ASTExprPtr Parser::_expr_ops02() // * / %
   auto left = _expr_ops01();
 
   while (true) {
-    auto tok = _lex.peek_token();
+    auto tok = _peek_token();
     if (tok.type != TOK_OP_MUL && tok.type != TOK_OP_DIV &&
         tok.type != TOK_OP_MOD)
       break;
-    _lex.get_token();
+    _get_token();
 
     auto right = _expr_ops01();
 
@@ -358,10 +359,10 @@ ASTExprPtr Parser::_expr_ops03() // + -
   auto left = _expr_ops02();
 
   while (true) {
-    auto tok = _lex.peek_token();
+    auto tok = _peek_token();
     if (tok.type != TOK_OP_ADD && tok.type != TOK_OP_SUB)
       break;
-    _lex.get_token();
+    _get_token();
 
     auto right = _expr_ops02();
 
@@ -381,10 +382,10 @@ ASTExprPtr Parser::_expr_ops04() // >> <<
   auto left = _expr_ops03();
 
   while (true) {
-    auto tok = _lex.peek_token();
+    auto tok = _peek_token();
     if (tok.type != TOK_OP_BLS && tok.type != TOK_OP_BRS)
       break;
-    _lex.get_token();
+    _get_token();
 
     auto right = _expr_ops03();
 
@@ -404,11 +405,11 @@ ASTExprPtr Parser::_expr_ops05() // < > <= >=
   auto left = _expr_ops04();
 
   while (true) {
-    auto tok = _lex.peek_token();
+    auto tok = _peek_token();
     if (tok.type != TOK_OP_GT && tok.type != TOK_OP_LT &&
         tok.type != TOK_OP_GE && tok.type != TOK_OP_LE)
       break;
-    _lex.get_token();
+    _get_token();
 
     auto right = _expr_ops04();
 
@@ -434,10 +435,10 @@ ASTExprPtr Parser::_expr_ops06() // == !=
   auto left = _expr_ops05();
 
   while (true) {
-    auto tok = _lex.peek_token();
+    auto tok = _peek_token();
     if (tok.type != TOK_OP_EQ && tok.type != TOK_OP_NE)
       break;
-    _lex.get_token();
+    _get_token();
 
     auto right = _expr_ops05();
 
@@ -457,10 +458,10 @@ ASTExprPtr Parser::_expr_ops07() // &
   auto left = _expr_ops06();
 
   while (true) {
-    auto tok = _lex.peek_token();
+    auto tok = _peek_token();
     if (tok.type != TOK_OP_BAND)
       break;
-    _lex.get_token();
+    _get_token();
 
     auto right = _expr_ops06();
     left = std::make_unique<ASTExprBinOp>(ASTExprBinOp::Op::BAND,
@@ -474,10 +475,10 @@ ASTExprPtr Parser::_expr_ops08() {
   auto left = _expr_ops07();
 
   while (true) {
-    auto tok = _lex.peek_token();
+    auto tok = _peek_token();
     if (tok.type != TOK_OP_BXOR)
       break;
-    _lex.get_token();
+    _get_token();
 
     auto right = _expr_ops07();
     left = std::make_unique<ASTExprBinOp>(ASTExprBinOp::Op::BXOR,
@@ -492,10 +493,10 @@ ASTExprPtr Parser::_expr_ops09() // |
   auto left = _expr_ops08();
 
   while (true) {
-    auto tok = _lex.peek_token();
+    auto tok = _peek_token();
     if (tok.type != TOK_OP_BOR)
       break;
-    _lex.get_token();
+    _get_token();
 
     auto right = _expr_ops08();
     left = std::make_unique<ASTExprBinOp>(ASTExprBinOp::Op::BOR,
@@ -510,10 +511,10 @@ ASTExprPtr Parser::_expr_ops10() // &&
   auto left = _expr_ops09();
 
   while (true) {
-    auto tok = _lex.peek_token();
+    auto tok = _peek_token();
     if (tok.type != TOK_OP_AND)
       break;
-    _lex.get_token();
+    _get_token();
 
     auto right = _expr_ops09();
     left = std::make_unique<ASTExprBinOp>(ASTExprBinOp::Op::AND,
@@ -528,10 +529,10 @@ ASTExprPtr Parser::_expr_ops11() // ||
   auto left = _expr_ops10();
 
   while (true) {
-    auto tok = _lex.peek_token();
+    auto tok = _peek_token();
     if (tok.type != TOK_OP_OR)
       break;
-    _lex.get_token();
+    _get_token();
 
     auto right = _expr_ops10();
     left = std::make_unique<ASTExprBinOp>(ASTExprBinOp::Op::OR, std::move(left),
@@ -544,11 +545,11 @@ ASTExprPtr Parser::_expr_ops11() // ||
 ASTExprPtr Parser::_expr_ops12() // = (RTL assign ops)
 {
   auto left = _expr_ops11();
-  auto tok = _lex.peek_token();
+  auto tok = _peek_token();
   if (tok.type != TOK_SYM_EQ)
     return left;
 
-  _lex.get_token();
+  _get_token();
   auto right = _expr_ops12();
   return std::make_unique<ASTExprBinOp>(ASTExprBinOp::Op::ASSIGN,
                                         std::move(left), std::move(right));
@@ -556,16 +557,16 @@ ASTExprPtr Parser::_expr_ops12() // = (RTL assign ops)
 
 ASTExprPtr Parser::_expr0() // sizeof, casts, (<expr>)
 {
-  auto tok = _lex.peek_token();
+  auto tok = _peek_token();
 
   if (tok.type == TOK_KW_SIZEOF) {
-    _lex.get_token();
+    _get_token();
     auto type = _typeid();
     return std::make_unique<ASTExprSizeof>(tok.loc, std::move(type));
   }
 
   else if (tok.type == TOK_KW_STATIC_CAST) {
-    _lex.get_token();
+    _get_token();
     auto type = _typeid();
     _consume_of_type(TOK_SYM_LPAREN, "parse_expr: expected '('");
     auto val = _expr();
@@ -576,7 +577,7 @@ ASTExprPtr Parser::_expr0() // sizeof, casts, (<expr>)
   }
 
   else if (tok.type == TOK_KW_PTR_CAST) {
-    _lex.get_token();
+    _get_token();
     auto type = _typeid();
     _consume_of_type(TOK_SYM_LPAREN, "parse_expr: expected '('");
     auto val = _expr();
@@ -587,7 +588,7 @@ ASTExprPtr Parser::_expr0() // sizeof, casts, (<expr>)
   }
 
   else if (tok.type == TOK_KW_REINTERPRET_CAST) {
-    _lex.get_token();
+    _get_token();
     auto type = _typeid();
     _consume_of_type(TOK_SYM_LPAREN, "parse_expr: expected '('");
     auto val = _expr();
@@ -598,7 +599,7 @@ ASTExprPtr Parser::_expr0() // sizeof, casts, (<expr>)
   }
 
   else if (tok.type == TOK_SYM_LPAREN) {
-    _lex.get_token();
+    _get_token();
     auto res = _expr();
     _consume_of_type(TOK_SYM_RPAREN, "parse_expr: expected ')'");
     return res;
@@ -608,7 +609,7 @@ ASTExprPtr Parser::_expr0() // sizeof, casts, (<expr>)
 
 ASTExprPtr Parser::_expr_symbol() // float, int, string, identifier
 {
-  auto tok = _lex.get_token();
+  auto tok = _get_token();
   auto val = tok.val;
 
   if (tok.type == obcl::TOK_CONST_SQ || tok.type == obcl::TOK_CONST_DQ) {
