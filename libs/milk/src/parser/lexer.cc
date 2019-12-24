@@ -26,6 +26,7 @@ const obcl::Lexer::CustomTokenInfos token_infos_custom[] = {
     DEF_SYM(SEMI, ";"),
     DEF_SYM(COLON, ":"),
     DEF_SYM(DOT, "."),
+    DEF_SYM(EQ, "="),
 
     {0, "", ""}};
 

@@ -101,4 +101,90 @@ ast_storage_list_t Parser::_r_fundef_argslist() {
   return res;
 }
 
+// aliasdef: 'type' @id '=' <typelabel> ';'
+ASTDefAliasPtr Parser::_r_aliasdef() {
+  auto beg_tok =
+      _consume_of_type(TOK_KW_TYPE, "r_aliasdef: expected keyword 'type'");
+  auto name = _consume_id("r_aliasdef: expected type alias name");
+  _consume_of_type(TOK_SYM_EQ,
+                   "r_aliasdef: expected symbol '=' after alias name");
+  auto type = _r_typelabel();
+  auto end_tok = _consume_of_type(
+      TOK_SYM_SEMI,
+      "r_aliasdef: expected symbol ';' at the end of an alias definition");
+  return std::make_unique<ASTDefAlias>(beg_tok.loc, end_tok.loc, name,
+                                       std::move(type));
+}
+
+// structdef: 'struct' @id '{' <structdef_field>+ '}' ';'
+ASTDefStructPtr Parser::_r_structdef() {
+  auto beg_tok =
+      _consume_of_type(TOK_KW_STRUCT, "r:structdef: expected keyword 'struct'");
+  auto name = _consume_id("r:structdef: expected struct name");
+  _consume_of_type(TOK_SYM_LCBRAC, "r:structdef: expected symbol '{'");
+
+  ast_defs_list_t fields;
+  while (!_consume_if_type(TOK_SYM_RCBRAC))
+    fields.push_back(_r_structdef_field());
+
+  auto end_tok = _consume_of_type(
+      TOK_SYM_SEMI,
+      "r:structdef: expected symbol ';' at the end of a struct definition");
+  return std::make_unique<ASTDefStruct>(beg_tok.loc, end_tok.loc, name,
+                                        std::move(fields));
+}
+
+// structdef_field:   structdef_attr
+//		     |  structdef_meth
+ASTDefPtr Parser::_r_structdef_field() {
+  auto tok = _peek_token();
+  switch (tok.type) {
+  case TOK_KW_LET:
+  case TOK_KW_CONST:
+    return _r_structdef_attr();
+  case TOK_KW_FN:
+    return _r_structdef_meth();
+  default:
+    throw obcl::ParserError(tok.loc, "r:structdef_field: invalid token");
+  };
+}
+
+// structdef_attr:   'let'|'const' @id ':' <typelabel> ';'
+ASTDefVarPtr Parser::_r_structdef_attr() {
+  auto beg_tok =
+      _consume_of_type({TOK_KW_LET, TOK_KW_CONST},
+                       "r:structdef_attr: expected keyword 'let' or 'const'");
+  bool is_const = beg_tok.type == TOK_KW_CONST;
+  auto name = _consume_id("r:structdef_atrr: expected attr name");
+  _consume_of_type(TOK_SYM_COLON, "r:structdef_attr: expected symbol ':'");
+  auto type = _r_typelabel();
+  auto end_tok = _consume_of_type(
+      TOK_SYM_SEMI,
+      "r:struct_attr: expected ';' at the end of struct attr definition");
+
+  obcl::Location loc(beg_tok.loc, end_tok.loc);
+  return std::make_unique<ASTDefVar>(
+      loc, ASTDefVar::Kind::STRUCT_FIELD,
+      std::make_unique<ASTNamedStorage>(loc, name, is_const, std::move(type)));
+}
+
+// structdef_meth: 'fn' @id '(' <fundef_argslist> ')' ['const'] ':'
+// <typelabel> <stmt>
+ASTDefFunPtr Parser::_r_structdef_meth() {
+  auto beg_tok =
+      _consume_of_type(TOK_KW_FN, "r:structdef_meth: expected keyword 'fn'");
+  auto name = _consume_id("r:structdef_meth: expected method name");
+  _consume_of_type(TOK_SYM_LRBRAC, "r:structdef_meth: expected '('");
+  auto args = _r_fundef_argslist();
+  _consume_of_type(TOK_SYM_RRBRAC, "r:structdef_meth: expected ')'");
+  _consume_of_type(TOK_SYM_COLON, "r:structdef_meth: expected ':'");
+  bool is_const = _consume_if_type(TOK_KW_CONST);
+  auto ret_type = _r_typelabel();
+  auto body = _r_stmt();
+  return std::make_unique<ASTDefFun>(
+      beg_tok.loc,
+      is_const ? ASTDefFun::Kind::METH_CONST : ASTDefFun::Kind::METH, name,
+      std::move(args), std::move(ret_type), std::move(body));
+}
+
 } // namespace milk

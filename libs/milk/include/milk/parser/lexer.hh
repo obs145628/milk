@@ -33,6 +33,7 @@ static constexpr obcl::token_type_t TOK_SYM_COMA = 1407;
 static constexpr obcl::token_type_t TOK_SYM_SEMI = 1408;
 static constexpr obcl::token_type_t TOK_SYM_COLON = 1409;
 static constexpr obcl::token_type_t TOK_SYM_DOT = 1410;
+static constexpr obcl::token_type_t TOK_SYM_EQ = 1411;
 
 extern const obcl::Lexer::CustomTokenInfos token_infos_custom[];
 

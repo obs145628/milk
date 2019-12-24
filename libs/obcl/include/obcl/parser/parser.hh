@@ -13,6 +13,7 @@
 #pragma once
 
 #include "../lexer/lexer.hh"
+#include "../parser/parser-error.hh"
 #include <initializer_list>
 #include <set>
 #include <string>
@@ -40,10 +41,16 @@ protected:
   /// Convenient shortcut for _lex.get_token()
   Token _get_token() { return _lex.get_token(); }
 
+  /// @returns the type of the current token
+  /// Doesn't cunsome it
+  token_type_t _peek_type() { return _peek_token().type; }
+
   /// consume the next token
   /// throws a ParserError if not of correct type
   /// mess is only used to describe errpr
   Token _consume_of_type(token_type_t type, const std::string &mess);
+  Token _consume_of_type(const std::initializer_list<token_type_t> &types,
+                         const std::string &mess);
 
   // try to consume a token as an identifier
   // throws a ParserError if invalid token
@@ -56,14 +63,26 @@ protected:
   /// Returns tru if the token was consumed
   bool _consume_if_type(token_type_t type, Token *out_tok = nullptr);
 
-  /// @returns the type of the current token
-  /// Doesn't cunsome it
-  token_type_t _peek_type();
-
   /// @returns true if the current token is one of the types
   /// Doesn't consume it
   bool _peek_any_of(const std::initializer_list<token_type_t> &types);
 };
+
+inline Token Parser::_consume_of_type(token_type_t type,
+                                      const std::string &mess) {
+  auto tok = _lex.get_token();
+  if (tok.type != type)
+    throw ParserError(tok.loc, mess);
+  return tok;
+}
+
+inline Token
+Parser::_consume_of_type(const std::initializer_list<token_type_t> &types,
+                         const std::string &mess) {
+  if (!_peek_any_of(types))
+    throw ParserError(_peek_token().loc, mess);
+  return _get_token();
+}
 
 inline std::string Parser::_consume_id(const std::string &mess) {
   return _consume_of_type(TOK_ID, mess).val;

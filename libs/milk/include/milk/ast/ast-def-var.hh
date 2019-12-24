@@ -12,20 +12,20 @@
 
 #pragma once
 
+#include "ast-def.hh"
 #include "ast-visitor.hh"
-#include "ast.hh"
 #include <string>
 
 namespace milk {
 
 /// Represent a variable definition. Can be used in several cases:
 /// - struct field definition
-class ASTDefVar : public AST {
+class ASTDefVar : public ASTDef {
 public:
   enum class Kind { STRUCT_FIELD };
 
   ASTDefVar(const obcl::Location &loc, Kind kind, ASTNamedStoragePtr &&storage)
-      : AST(loc), _kind(kind), _storage(std::move(storage)) {}
+      : ASTDef(loc), _kind(kind), _storage(std::move(storage)) {}
 
   void accept(ASTVisitor &visitor) const override { visitor.visit(*this); }
 

@@ -23,6 +23,8 @@ namespace milk {
 /// eg: type counter_t = i16;
 class ASTDefAlias : public ASTDef {
 public:
+  /// @param beg_log location of 'type'
+  /// @param end_loc location of ';'
   ASTDefAlias(const obcl::Location &beg_loc, const obcl::Location &end_loc,
               const std::string &name, ASTTypeLabelPtr &&type)
       : ASTDef(obcl::Location(beg_loc, end_loc)), _name(name),
