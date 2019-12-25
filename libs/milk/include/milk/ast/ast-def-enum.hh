@@ -27,6 +27,8 @@ class ASTDefEnum : public ASTDef {
 public:
   using fields_t = std::vector<std::pair<std::string, int>>;
 
+  static constexpr const char *DEF_TYPENAME = "i32";
+
   /// @param beg_loc location of 'enum'
   /// @param end_loc location of ';'
   ASTDefEnum(const obcl::Location &beg_loc, const obcl::Location &end_loc,

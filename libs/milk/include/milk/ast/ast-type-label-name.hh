@@ -22,7 +22,10 @@ namespace milk {
 class ASTTypeLabelName : public ASTTypeLabel {
 public:
   ASTTypeLabelName(const obcl::Token &tok)
-      : ASTTypeLabel(tok.loc), _name(tok.val) {}
+      : ASTTypeLabelName(tok.loc, tok.val) {}
+
+  ASTTypeLabelName(const obcl::Location &loc, const std::string &name)
+      : ASTTypeLabel(loc), _name(name) {}
 
   void accept(ASTVisitor &visitor) const override { visitor.visit(*this); }
 

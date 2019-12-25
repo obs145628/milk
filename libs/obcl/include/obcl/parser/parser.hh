@@ -54,8 +54,13 @@ protected:
 
   // try to consume a token as an identifier
   // throws a ParserError if invalid token
-  // mess only used to describe errpr
+  // mess only used to describe errp
   std::string _consume_id(const std::string &mess);
+
+  // try to consume a token as a constant integer
+  // throws a ParserError if invalid token
+  // mess only used to describe errp
+  long _consume_cint(const std::string &mess);
 
   /// If the next token type is \p type, consumes it
   /// Otherwhise doesn nothing
@@ -86,6 +91,10 @@ Parser::_consume_of_type(const std::initializer_list<token_type_t> &types,
 
 inline std::string Parser::_consume_id(const std::string &mess) {
   return _consume_of_type(TOK_ID, mess).val;
+}
+
+inline long Parser::_consume_cint(const std::string &mess) {
+  return _consume_of_type(TOK_CONST_INT, mess).get_int();
 }
 
 inline bool Parser::_consume_if_type(token_type_t type, Token *out_tok) {

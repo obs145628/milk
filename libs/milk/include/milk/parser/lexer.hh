@@ -34,6 +34,11 @@ static constexpr obcl::token_type_t TOK_SYM_SEMI = 1408;
 static constexpr obcl::token_type_t TOK_SYM_COLON = 1409;
 static constexpr obcl::token_type_t TOK_SYM_DOT = 1410;
 static constexpr obcl::token_type_t TOK_SYM_EQ = 1411;
+static constexpr obcl::token_type_t TOK_SYM_AND = 1412;
+static constexpr obcl::token_type_t TOK_SYM_MREF = TOK_SYM_AND;
+static constexpr obcl::token_type_t TOK_SYM_CREF = 1413;
+static constexpr obcl::token_type_t TOK_SYM_MAREF = 1414;
+static constexpr obcl::token_type_t TOK_SYM_CAREF = 1415;
 
 extern const obcl::Lexer::CustomTokenInfos token_infos_custom[];
 

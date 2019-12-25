@@ -187,4 +187,88 @@ ASTDefFunPtr Parser::_r_structdef_meth() {
       std::move(args), std::move(ret_type), std::move(body));
 }
 
+// enumdef: 'enum' @id [':' <typelabel>] '{' <enumdef_field>+ '}' ';'
+//
+// enumdef_field: @id ['=' @int] ';'
+ASTDefEnumPtr Parser::_r_enumdef() {
+  auto beg_tok =
+      _consume_of_type(TOK_KW_ENUM, "r:enumdef: expected keyword 'enum'");
+  auto name = _consume_id("r:enumdef: expected enum name");
+  auto type = _consume_if_type(TOK_SYM_COLON)
+                  ? _r_typelabel()
+                  : std::make_unique<ASTTypeLabelName>(
+                        beg_tok.loc, ASTDefEnum::DEF_TYPENAME);
+
+  _consume_of_type(TOK_SYM_LCBRAC, "r:enumdef: expected symbol '{'");
+  ASTDefEnum::fields_t fields;
+  int next_val = 0;
+  while (_peek_type() == obcl::TOK_ID) {
+    auto name = _consume_id("r:enumdef: expected enum field name");
+    int val =
+        _consume_if_type(TOK_SYM_EQ)
+            ? _consume_cint("r:enumdef: expected int for enum field value")
+            : next_val;
+    _consume_of_type(
+        TOK_SYM_SEMI,
+        "r:enumdef: expected symbol ';' at the end of an enum field");
+    next_val = val + 1;
+    fields.emplace_back(name, val);
+  }
+
+  _consume_of_type(TOK_SYM_RCBRAC, "r:enumdef: expected symbol '}'");
+  auto end_tok = _consume_of_type(
+      TOK_SYM_SEMI,
+      "r:enumdef: expected symbol ';' at the end of enum definition");
+  return std::make_unique<ASTDefEnum>(beg_tok.loc, end_tok.loc, name,
+                                      std::move(type), fields);
+}
+
+// typelabel:   <valuetypelabel>
+//	       | '&' <valuetypelabel>
+//	       | '&const' <valuetypelabel>
+//	       | '&[]' <valuetypelabel>
+//	       | '&[]const' <valuetypelabel>
+//
+// valuetypelabel: @id
+ASTTypeLabelPtr Parser::_r_typelabel() {
+
+  auto beg_tok = _get_token();
+  switch (beg_tok.type) {
+
+  case obcl::TOK_ID:
+    return std::make_unique<ASTTypeLabelName>(beg_tok);
+
+  case TOK_SYM_MREF:
+    return std::make_unique<ASTTypeLabelRef>(
+        beg_tok.loc, ASTTypeLabelRef::Kind::MUT_REF,
+        std::make_unique<ASTTypeLabelName>(_consume_of_type(
+            obcl::TOK_ID,
+            "r:typelabel: expected type name after qualifier '&'")));
+
+  case TOK_SYM_CREF:
+    return std::make_unique<ASTTypeLabelRef>(
+        beg_tok.loc, ASTTypeLabelRef::Kind::CONST_REF,
+        std::make_unique<ASTTypeLabelName>(_consume_of_type(
+            obcl::TOK_ID,
+            "r:typelabel: expected type name after qualifier '&const'")));
+
+  case TOK_SYM_MAREF:
+    return std::make_unique<ASTTypeLabelRef>(
+        beg_tok.loc, ASTTypeLabelRef::Kind::MUT_ARR_REF,
+        std::make_unique<ASTTypeLabelName>(_consume_of_type(
+            obcl::TOK_ID,
+            "r:typelabel: expected type name after qualifier '&[]'")));
+
+  case TOK_SYM_CAREF:
+    return std::make_unique<ASTTypeLabelRef>(
+        beg_tok.loc, ASTTypeLabelRef::Kind::CONST_ARR_REF,
+        std::make_unique<ASTTypeLabelName>(_consume_of_type(
+            obcl::TOK_ID,
+            "r:typelabel: expected type name after qualifier '&[]const'")));
+
+  default:
+    throw obcl::ParserError(beg_tok.loc, "r:typelabel invalid token");
+  }
+}
+
 } // namespace milk
