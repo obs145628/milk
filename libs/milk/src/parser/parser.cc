@@ -271,4 +271,153 @@ ASTTypeLabelPtr Parser::_r_typelabel() {
   }
 }
 
+// stmt:
+//	     stmt_block
+//	   | stmt_expr
+//	   | stmt_vardef
+//	   | stmt_if
+//	   | stmt_while
+//	   | stmt_break
+//	   | stmt_continue
+//	   | stmt_return
+ASTStmtPtr Parser::_r_stmt() {
+  switch (_peek_type()) {
+  case TOK_SYM_LCBRAC:
+    return _r_stmt_block();
+  case TOK_KW_LET:
+  case TOK_KW_CONST:
+    return _r_stmt_vardef();
+  case TOK_KW_IF:
+    return _r_stmt_if();
+  case TOK_KW_WHILE:
+    return _r_stmt_while();
+  case TOK_KW_BREAK:
+    return _r_stmt_break();
+  case TOK_KW_CONTINUE:
+    return _r_stmt_continue();
+  case TOK_KW_RETURN:
+    return _r_stmt_return();
+  default:
+    return _r_stmt_expr();
+  }
+}
+
+// stmt_block: '{' <stmt>* '}'
+ASTStmtBlockPtr Parser::_r_stmt_block() {
+  auto beg_tok =
+      _consume_of_type(TOK_SYM_LCBRAC, "r:stmt_block: expected symbol '{'");
+  ast_stmts_list_t res;
+  auto end_tok = obcl::Token::eof();
+  while (!_consume_if_type(TOK_SYM_RCBRAC, &end_tok))
+    res.push_back(_r_stmt());
+  return std::make_unique<ASTStmtBlock>(beg_tok.loc, end_tok.loc,
+                                        std::move(res));
+}
+
+// stmt_expr: <expr> ';'
+ASTStmtExprPtr Parser::_r_stmt_expr() {
+  auto expr = _r_expr();
+  auto end_tok = _consume_of_type(
+      TOK_SYM_SEMI,
+      "r:stmt_expr: expression statement must be terminated by symbol ';'");
+  return std::make_unique<ASTStmtExpr>(end_tok.loc, std::move(expr));
+}
+
+// stmt_vardef:   'let'|'const' @id [':' <typelabel>] '=' <expr> ';'
+ASTStmtVarPtr Parser::_r_stmt_vardef() {
+  auto beg_tok =
+      _consume_of_type({TOK_KW_LET, TOK_KW_CONST},
+                       "r:stmt_vardef: expected keyword 'let' or 'const'");
+  bool is_const = beg_tok.type == TOK_KW_CONST;
+  auto name = _consume_id("r:stmt_vardef: expected variable name");
+
+  ASTTypeLabelPtr type = nullptr;
+  if (_consume_if_type(TOK_SYM_COLON))
+    type = _r_typelabel();
+
+  _consume_of_type(TOK_SYM_EQ, "r:stmt_vardef: expected symbol '='");
+  auto init = _r_expr();
+  auto end_tok = _consume_of_type(TOK_SYM_SEMI,
+                                  "r:stmt_vardef: variable definition "
+                                  "statement must be terminated by symbol ';'");
+
+  obcl::Location loc(beg_tok.loc, end_tok.loc);
+  return std::make_unique<ASTStmtVar>(
+      beg_tok.loc, end_tok.loc,
+      std::make_unique<ASTNamedStorage>(loc, name, is_const, std::move(type)),
+      std::move(init));
+}
+
+// stmt_if: 'if' '(' <expr> ')' <stmt> ['else' <stmt>]
+// !ambiguity! else always connected to the closest if
+ASTStmtIfPtr Parser::_r_stmt_if() {
+  auto beg_tok =
+      _consume_of_type(TOK_KW_IF, "r:stmt_if: expected keyword 'if'");
+  _consume_of_type(TOK_SYM_LRBRAC,
+                   "r:stmt_if: expected symbol '(' around condition");
+  auto cond = _r_expr();
+  _consume_of_type(TOK_SYM_RRBRAC,
+                   "r:stmt_if: expected symbol ')' around condition");
+  auto if_stmt = _r_stmt();
+
+  auto else_stmt =
+      _consume_if_type(TOK_KW_ELSE)
+          ? _r_stmt()
+          : std::make_unique<ASTStmtBlock>(if_stmt->loc(), if_stmt->loc(),
+                                           ast_stmts_list_t{});
+
+  return std::make_unique<ASTStmtIf>(beg_tok.loc, std::move(cond),
+                                     std::move(if_stmt), std::move(else_stmt));
+}
+
+// stmt_while: 'while' '(' <expr> ')' <stmt>
+ASTStmtWhilePtr Parser::_r_stmt_while() {
+  auto beg_tok =
+      _consume_of_type(TOK_KW_WHILE, "r:stmt_while: expected keyword 'while'");
+  _consume_of_type(TOK_SYM_LRBRAC,
+                   "r:stmt_while: expected symbol '(' around condition");
+  auto cond = _r_expr();
+  _consume_of_type(TOK_SYM_RRBRAC,
+                   "r:stmt_while: expected symbol ')' around condition");
+  auto body = _r_stmt();
+  return std::make_unique<ASTStmtWhile>(beg_tok.loc, std::move(cond),
+                                        std::move(body));
+}
+
+// stmt_break: 'break' ';'
+ASTStmtBreakPtr Parser::_r_stmt_break() {
+  auto beg_tok =
+      _consume_of_type(TOK_KW_BREAK, "r:stmt_break: expected keyword 'break'");
+  auto end_tok = _consume_of_type(
+      TOK_SYM_SEMI,
+      "r:stmt_break: expected symbol ';' at the end of a break statement");
+  return std::make_unique<ASTStmtBreak>(beg_tok.loc, end_tok.loc,
+                                        ASTStmtBreak::Kind::BREAK);
+}
+
+// stmt_break: 'continue' ';'
+ASTStmtBreakPtr Parser::_r_stmt_continue() {
+  auto beg_tok = _consume_of_type(
+      TOK_KW_CONTINUE, "r:stmt_continue: expected keyword 'continue'");
+  auto end_tok =
+      _consume_of_type(TOK_SYM_SEMI, "r:stmt_continue: expected symbol ';' at "
+                                     "the end of a continue statement");
+  return std::make_unique<ASTStmtBreak>(beg_tok.loc, end_tok.loc,
+                                        ASTStmtBreak::Kind::CONTINUE);
+}
+
+// stmt_return: 'return' [expr>] ';'
+ASTStmtReturnPtr Parser::_r_stmt_return() {
+  auto beg_tok = _consume_of_type(TOK_KW_RETURN,
+                                  "r:stmt_return: expected keyword 'return'");
+  auto val = _peek_type() == TOK_SYM_SEMI ? nullptr : _r_expr();
+  auto end_tok =
+      _consume_of_type(TOK_SYM_SEMI, "r:stmt_return: expected symbol ';' at "
+                                     "the end of a return statement");
+  return std::make_unique<ASTStmtReturn>(beg_tok.loc, end_tok.loc,
+                                         std::move(val));
+}
+
+ASTExprPtr Parser::_r_expr() { return _r_expr_1(); }
+
 } // namespace milk

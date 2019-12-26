@@ -2,6 +2,9 @@
 
 //#define DEF_KW(X) {TOK_KW_ ## X, #X, "KW_" #X}
 
+#define DEF_KW(NAME, REPR)                                                     \
+  { TOK_KW_##NAME, REPR, "KW_" #NAME }
+
 #define DEF_SYM(NAME, REPR)                                                    \
   { TOK_SYM_##NAME, REPR, "KW_" #NAME }
 
@@ -9,12 +12,18 @@ namespace milk {
 
 const obcl::Lexer::CustomTokenInfos token_infos_custom[] = {
 
-    {TOK_KW_FN, "fn", "KW_FN"},
-    {TOK_KW_TYPE, "type", "KW_TYPE"},
-    {TOK_KW_STRUCT, "struct", "KW_STRUCT"},
-    {TOK_KW_LET, "let", "KW_LET"},
-    {TOK_KW_CONST, "const", "KW_CONST"},
-    {TOK_KW_ENUM, "enum", "KW_ENUM"},
+    DEF_KW(FN, "fn"),
+    DEF_KW(TYPE, "type"),
+    DEF_KW(STRUCT, "struct"),
+    DEF_KW(LET, "let"),
+    DEF_KW(CONST, "const"),
+    DEF_KW(ENUM, "enum"),
+    DEF_KW(IF, "if"),
+    DEF_KW(ELSE, "else"),
+    DEF_KW(WHILE, "while"),
+    DEF_KW(BREAK, "break"),
+    DEF_KW(CONTINUE, "continue"),
+    DEF_KW(RETURN, "return"),
 
     DEF_SYM(LCBRAC, "{"),
     DEF_SYM(RRBRAC, "}"),
@@ -36,5 +45,5 @@ const obcl::Lexer::CustomTokenInfos token_infos_custom[] = {
 
 }
 
-//#undef DEF_KW
+#undef DEF_KW
 #undef DEF_SYM

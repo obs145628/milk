@@ -24,7 +24,7 @@ public:
   /// @param beg_loc location of 'return'
   /// @param end_loc location of ';'
   ASTStmtReturn(const obcl::Location &beg_loc, const obcl::Location &end_loc,
-                ASTExprPtr &val)
+                ASTExprPtr &&val)
       : ASTStmt(obcl::Location(beg_loc, end_loc)), _val(std::move(val)) {}
 
   void accept(ASTVisitor &visitor) const override { visitor.visit(*this); }
