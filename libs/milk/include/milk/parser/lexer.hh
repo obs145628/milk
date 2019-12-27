@@ -45,6 +45,12 @@ static constexpr obcl::token_type_t TOK_SYM_MREF = TOK_SYM_AND;
 static constexpr obcl::token_type_t TOK_SYM_CREF = 1413;
 static constexpr obcl::token_type_t TOK_SYM_MAREF = 1414;
 static constexpr obcl::token_type_t TOK_SYM_CAREF = 1415;
+static constexpr obcl::token_type_t TOK_SYM_ADD_EQ = 1416;
+static constexpr obcl::token_type_t TOK_SYM_SUB_EQ = 1417;
+static constexpr obcl::token_type_t TOK_SYM_MUL_EQ = 1418;
+static constexpr obcl::token_type_t TOK_SYM_DIV_EQ = 1419;
+static constexpr obcl::token_type_t TOK_SYM_MOD_EQ = 1420;
+static constexpr obcl::token_type_t TOK_SYM_QUESTION = 1421;
 
 extern const obcl::Lexer::CustomTokenInfos token_infos_custom[];
 

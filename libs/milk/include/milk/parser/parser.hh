@@ -131,7 +131,7 @@ private:
   ASTExprPtr _r_expr();
 
   // expr_12:  expr11
-  //	     | expr_11 ('=' | '*=' | '/=' | '%=' | '-=') expr_12
+  //	     | expr_11 ('=' | '*=' | '/=' | '%=' | '+=' | '-=') expr_12
   ASTExprPtr _r_expr_12();
 
   // expr_11:  expr_10

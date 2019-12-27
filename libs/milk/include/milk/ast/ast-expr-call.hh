@@ -26,6 +26,13 @@ namespace milk {
 /// subscript operator
 class ASTExprCall : public ASTExpr {
 public:
+  static constexpr const char *OP_SET = "@op:set";
+  static constexpr const char *OP_SETADD = "@op:setadd";
+  static constexpr const char *OP_SETSUB = "@op:setsub";
+  static constexpr const char *OP_SETMUL = "@op:setmul";
+  static constexpr const char *OP_SETDIV = "@op:setdiv";
+  static constexpr const char *OP_SETMOD = "@op:setmod";
+
   ASTExprCall(const obcl::Location &loc, ASTExprPtr &&callee,
               ast_exprs_list_t &&args)
       : ASTExpr(loc), _callee(std::move(callee)), _args(std::move(args)) {}

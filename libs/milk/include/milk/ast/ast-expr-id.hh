@@ -22,7 +22,10 @@ namespace milk {
 /// (eg: var name, function)
 class ASTExprId : public ASTExpr {
 public:
-  ASTExprId(const obcl::Token &tok) : ASTExpr(tok.loc), _id(tok.val) {
+  ASTExprId(const obcl::Location &loc, const std::string &id)
+      : ASTExpr(loc), _id(id) {}
+
+  ASTExprId(const obcl::Token &tok) : ASTExprId(tok.loc, tok.val) {
     assert(tok.type == obcl::TOK_ID);
   }
 

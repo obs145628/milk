@@ -96,7 +96,7 @@ stmt_return: 'return' [expr>] ';'
 expr: expr_12
 
 expr_12:   expr11
-	 | expr_11 ('=' | '*=' | '/=' | '%=' | '-=') expr_12
+	 | expr_11 ('=' | '*=' | '/=' | '%=' | '+=' | '-=') expr_12
 
 expr_11:   expr_10
 	 | expr_10 '?' expr_11 ':' expr_11

@@ -418,6 +418,66 @@ ASTStmtReturnPtr Parser::_r_stmt_return() {
                                          std::move(val));
 }
 
-ASTExprPtr Parser::_r_expr() { return _r_expr_1(); }
+ASTExprPtr Parser::_r_expr() { return _r_expr_12(); }
+
+// expr_12:  expr11
+//	     | expr_11 ('=' | '*=' | '/=' | '%=' | '+=' | '-=') expr_12
+ASTExprPtr Parser::_r_expr_12() {
+  auto left = _r_expr_11();
+  const char *fn = nullptr;
+
+  switch (_peek_type()) {
+  case TOK_SYM_EQ:
+    fn = ASTExprCall::OP_SET;
+    break;
+  case TOK_SYM_ADD_EQ:
+    fn = ASTExprCall::OP_SETADD;
+    break;
+  case TOK_SYM_SUB_EQ:
+    fn = ASTExprCall::OP_SETSUB;
+    break;
+  case TOK_SYM_MUL_EQ:
+    fn = ASTExprCall::OP_SETMUL;
+    break;
+  case TOK_SYM_DIV_EQ:
+    fn = ASTExprCall::OP_SETDIV;
+    break;
+  case TOK_SYM_MOD_EQ:
+    fn = ASTExprCall::OP_SETMOD;
+    break;
+  default:
+    return left;
+  }
+
+  auto right = _r_expr_12();
+  obcl::Location loc(left->loc(), right->loc());
+  auto callee = std::make_unique<ASTExprId>(loc, fn);
+  ast_exprs_list_t args;
+  args.push_back(std::move(left));
+  args.push_back(std::move(right));
+  return std::make_unique<ASTExprCall>(loc, std::move(callee), std::move(args));
+}
+
+// expr_11:  expr_10
+//	     | expr_10 '?' expr_11 ':' expr_11
+ASTExprPtr Parser::_r_expr_11() {
+  auto left = _r_expr_10();
+  if (!_consume_if_type(TOK_SYM_QUESTION))
+    return left;
+
+  auto if_val = _r_expr_10();
+  _consume_of_type(
+      TOK_SYM_COLON,
+      "r:expr: expected ':' after second operand of ternary operator");
+  auto else_val = _r_expr_11();
+
+  obcl::Location loc(left->loc(), else_val->loc());
+  ast_exprs_list_t args;
+  args.push_back(std::move(left));
+  args.push_back(std::move(if_val));
+  args.push_back(std::move(else_val));
+  return std::make_unique<ASTExprSpecial>(loc, ASTExprSpecial::Kind::OP_TERNARY,
+                                          std::move(args));
+}
 
 } // namespace milk
