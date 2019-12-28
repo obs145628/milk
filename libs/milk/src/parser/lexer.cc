@@ -46,6 +46,23 @@ const obcl::Lexer::CustomTokenInfos token_infos_custom[] = {
     DEF_SYM(DIV_EQ, "/="),
     DEF_SYM(MOD_EQ, "%="),
     DEF_SYM(QUESTION, "?"),
+    DEF_SYM(OR2, "||"),
+    DEF_SYM(AND2, "&&"),
+    DEF_SYM(OR, "|"),
+    DEF_SYM(XOR, "^"),
+    DEF_SYM(EQ2, "=="),
+    DEF_SYM(NE, "!="),
+    DEF_SYM(LT, "<"),
+    DEF_SYM(GT, ">"),
+    DEF_SYM(LE, "<="),
+    DEF_SYM(GE, ">="),
+    DEF_SYM(LT2, "<<"),
+    DEF_SYM(GT2, ">>"),
+    DEF_SYM(ADD, "+"),
+    DEF_SYM(SUB, "-"),
+    DEF_SYM(MUL, "*"),
+    DEF_SYM(DIV, "/"),
+    DEF_SYM(MOD, "%"),
 
     {0, "", ""}};
 

@@ -11,6 +11,39 @@ using obcl::Token;
 
 namespace milk {
 
+namespace {
+
+ASTExprCallPtr call_special(const char *name, ASTExprPtr &&arg1,
+                            ASTExprPtr &&arg2) {
+  obcl::Location loc(arg1->loc(), arg2->loc());
+  auto callee = std::make_unique<ASTExprId>(loc, name);
+  ast_exprs_list_t args;
+  args.push_back(std::move(arg1));
+  args.push_back(std::move(arg2));
+  return std::make_unique<ASTExprCall>(loc, std::move(callee), std::move(args));
+}
+
+ASTExprSpecialPtr op_special(ASTExprSpecial::Kind kind, ASTExprPtr &&arg1,
+                             ASTExprPtr &&arg2) {
+  obcl::Location loc(arg1->loc(), arg2->loc());
+  ast_exprs_list_t args;
+  args.push_back(std::move(arg1));
+  args.push_back(std::move(arg2));
+  return std::make_unique<ASTExprSpecial>(loc, kind, std::move(args));
+}
+
+ASTExprSpecialPtr op_special(ASTExprSpecial::Kind kind, ASTExprPtr &&arg1,
+                             ASTExprPtr &&arg2, ASTExprPtr &&arg3) {
+  obcl::Location loc(arg1->loc(), arg3->loc());
+  ast_exprs_list_t args;
+  args.push_back(std::move(arg1));
+  args.push_back(std::move(arg2));
+  args.push_back(std::move(arg3));
+  return std::make_unique<ASTExprSpecial>(loc, kind, std::move(args));
+}
+
+} // namespace
+
 Parser::Parser() : obcl::Parser(token_infos_custom), _ast(nullptr) {}
 
 void Parser::parse_file(const std::string &path) {
@@ -470,14 +503,78 @@ ASTExprPtr Parser::_r_expr_11() {
       TOK_SYM_COLON,
       "r:expr: expected ':' after second operand of ternary operator");
   auto else_val = _r_expr_11();
-
-  obcl::Location loc(left->loc(), else_val->loc());
-  ast_exprs_list_t args;
-  args.push_back(std::move(left));
-  args.push_back(std::move(if_val));
-  args.push_back(std::move(else_val));
-  return std::make_unique<ASTExprSpecial>(loc, ASTExprSpecial::Kind::OP_TERNARY,
-                                          std::move(args));
+  return op_special(ASTExprSpecial::Kind::OP_TERNARY, std::move(left),
+                    std::move(if_val), std::move(else_val));
 }
+
+// expr_10: expr_9 ('||' expr_9)*
+ASTExprPtr Parser::_r_expr_10() {
+  auto res = _r_expr_9();
+  while (_consume_if_type(TOK_SYM_OR2))
+    res = op_special(ASTExprSpecial::Kind::OP_OR, std::move(res), _r_expr_9());
+  return res;
+}
+
+// expr_9: expr_8 ('&&' expr_8)*
+ASTExprPtr Parser::_r_expr_9() {
+  auto res = _r_expr_8();
+  while (_consume_if_type(TOK_SYM_AND2))
+    res = op_special(ASTExprSpecial::Kind::OP_AND, std::move(res), _r_expr_8());
+  return res;
+}
+
+// expr_8: expr_7 ('|' expr_7)*
+ASTExprPtr Parser::_r_expr_8() {
+  auto res = _r_expr_7();
+  while (_consume_if_type(TOK_SYM_OR))
+    res = call_special(ASTExprCall::OP_BOR, std::move(res), _r_expr_7());
+  return res;
+}
+
+// expr_7: expr_6 ('^' expr_6)*
+ASTExprPtr Parser::_r_expr_7() {
+  auto res = _r_expr_6();
+  while (_consume_if_type(TOK_SYM_XOR))
+    res = call_special(ASTExprCall::OP_BXOR, std::move(res), _r_expr_6());
+  return res;
+}
+
+// expr_6: expr_5 ('&' expr_5)*
+ASTExprPtr Parser::_r_expr_6() {
+  auto res = _r_expr_5();
+  while (_consume_if_type(TOK_SYM_AND))
+    res = call_special(ASTExprCall::OP_BAND, std::move(res), _r_expr_5());
+  return res;
+}
+
+// expr_5: expr_4 (('==' | '!=') expr_4)*
+ASTExprPtr Parser::_r_expr_5() {
+  auto res = _r_expr_4();
+  auto op_tok = obcl::Token::eof();
+  while (_consume_if_type({TOK_SYM_EQ2, TOK_SYM_NE})) {
+    switch (op_tok.type) {
+    case TOK_SYM_EQ2:
+      res = call_special(ASTExprCall::OP_EQ, std::move(res), _r_expr_4());
+      break;
+    case TOK_SYM_NE:
+      res = call_special(ASTExprCall::OP_NE, std::move(res), _r_expr_4());
+      break;
+    }
+  }
+
+  return res;
+}
+
+// expr_4: expr_3 (('<' | '>' | '<=' | '>=') expr_3)*
+ASTExprPtr _r_expr_4();
+
+// expr_3: expr_2 (('<<' | '>>') expr_2)*
+ASTExprPtr _r_expr_3();
+
+// expr_2: expr_1 (('+' | '-') expr_1)*
+ASTExprPtr _r_expr_2();
+
+// expr_1: expr_unop (('*' | '/' | '%') expr_unop)*
+ASTExprPtr _r_expr_1();
 
 } // namespace milk

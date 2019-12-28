@@ -51,6 +51,23 @@ static constexpr obcl::token_type_t TOK_SYM_MUL_EQ = 1418;
 static constexpr obcl::token_type_t TOK_SYM_DIV_EQ = 1419;
 static constexpr obcl::token_type_t TOK_SYM_MOD_EQ = 1420;
 static constexpr obcl::token_type_t TOK_SYM_QUESTION = 1421;
+static constexpr obcl::token_type_t TOK_SYM_OR2 = 1422;
+static constexpr obcl::token_type_t TOK_SYM_AND2 = 1423;
+static constexpr obcl::token_type_t TOK_SYM_OR = 1424;
+static constexpr obcl::token_type_t TOK_SYM_XOR = 1425;
+static constexpr obcl::token_type_t TOK_SYM_EQ2 = 1426;
+static constexpr obcl::token_type_t TOK_SYM_NE = 1427;
+static constexpr obcl::token_type_t TOK_SYM_LT = 1428;
+static constexpr obcl::token_type_t TOK_SYM_GT = 1429;
+static constexpr obcl::token_type_t TOK_SYM_LE = 1430;
+static constexpr obcl::token_type_t TOK_SYM_GE = 1431;
+static constexpr obcl::token_type_t TOK_SYM_LT2 = 1432;
+static constexpr obcl::token_type_t TOK_SYM_GT2 = 1433;
+static constexpr obcl::token_type_t TOK_SYM_ADD = 1434;
+static constexpr obcl::token_type_t TOK_SYM_SUB = 1435;
+static constexpr obcl::token_type_t TOK_SYM_MUL = 1436;
+static constexpr obcl::token_type_t TOK_SYM_DIV = 1437;
+static constexpr obcl::token_type_t TOK_SYM_MOD = 1438;
 
 extern const obcl::Lexer::CustomTokenInfos token_infos_custom[];
 

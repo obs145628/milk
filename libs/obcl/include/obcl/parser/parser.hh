@@ -65,8 +65,10 @@ protected:
   /// If the next token type is \p type, consumes it
   /// Otherwhise doesn nothing
   /// @param out_tok if not null, store tje consumed token
-  /// Returns tru if the token was consumed
+  /// Returns true if the token was consumed
   bool _consume_if_type(token_type_t type, Token *out_tok = nullptr);
+  bool _consume_if_type(const std::initializer_list<token_type_t> &types,
+                        Token *out_tok = nullptr);
 
   /// @returns true if the current token is one of the types
   /// Doesn't consume it
@@ -99,6 +101,17 @@ inline long Parser::_consume_cint(const std::string &mess) {
 
 inline bool Parser::_consume_if_type(token_type_t type, Token *out_tok) {
   if (_peek_type() != type)
+    return false;
+  auto tok = _lex.get_token();
+  if (out_tok)
+    *out_tok = tok;
+  return true;
+}
+
+inline bool
+Parser::_consume_if_type(const std::initializer_list<token_type_t> &types,
+                         Token *out_tok) {
+  if (!_peek_any_of(types))
     return false;
   auto tok = _lex.get_token();
   if (out_tok)
