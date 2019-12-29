@@ -4,6 +4,7 @@
 #include "parser/lexer.hh"
 
 #include "obcl/parser/parser-error.hh"
+#include "obcl/utils/debug.hh"
 
 #include <cassert>
 
@@ -12,6 +13,15 @@ using obcl::Token;
 namespace milk {
 
 namespace {
+
+ASTExprCallPtr call_special(const char *name, const obcl::Token &op,
+                            ASTExprPtr &&arg) {
+  auto callee = std::make_unique<ASTExprId>(op.loc, name);
+  ast_exprs_list_t args;
+  args.push_back(std::move(arg));
+  return std::make_unique<ASTExprCall>(op.loc, std::move(callee),
+                                       std::move(args));
+}
 
 ASTExprCallPtr call_special(const char *name, ASTExprPtr &&arg1,
                             ASTExprPtr &&arg2) {
@@ -551,7 +561,7 @@ ASTExprPtr Parser::_r_expr_6() {
 ASTExprPtr Parser::_r_expr_5() {
   auto res = _r_expr_4();
   auto op_tok = obcl::Token::eof();
-  while (_consume_if_type({TOK_SYM_EQ2, TOK_SYM_NE})) {
+  while (_consume_if_type({TOK_SYM_EQ2, TOK_SYM_NE}, &op_tok)) {
     switch (op_tok.type) {
     case TOK_SYM_EQ2:
       res = call_special(ASTExprCall::OP_EQ, std::move(res), _r_expr_4());
@@ -559,6 +569,8 @@ ASTExprPtr Parser::_r_expr_5() {
     case TOK_SYM_NE:
       res = call_special(ASTExprCall::OP_NE, std::move(res), _r_expr_4());
       break;
+    default:
+      UNREACHABLE();
     }
   }
 
@@ -566,15 +578,155 @@ ASTExprPtr Parser::_r_expr_5() {
 }
 
 // expr_4: expr_3 (('<' | '>' | '<=' | '>=') expr_3)*
-ASTExprPtr _r_expr_4();
+ASTExprPtr Parser::_r_expr_4() {
+  auto res = _r_expr_3();
+  auto op_tok = obcl::Token::eof();
+  while (_consume_if_type({TOK_SYM_LT, TOK_SYM_GT, TOK_SYM_LE, TOK_SYM_GE},
+                          &op_tok)) {
+    switch (op_tok.type) {
+    case TOK_SYM_LT:
+      res = call_special(ASTExprCall::OP_LT, std::move(res), _r_expr_3());
+      break;
+    case TOK_SYM_GT:
+      res = call_special(ASTExprCall::OP_GT, std::move(res), _r_expr_3());
+      break;
+    case TOK_SYM_LE:
+      res = call_special(ASTExprCall::OP_LE, std::move(res), _r_expr_3());
+      break;
+    case TOK_SYM_GE:
+      res = call_special(ASTExprCall::OP_GE, std::move(res), _r_expr_3());
+      break;
+    default:
+      UNREACHABLE();
+    }
+  }
+
+  return res;
+}
 
 // expr_3: expr_2 (('<<' | '>>') expr_2)*
-ASTExprPtr _r_expr_3();
+ASTExprPtr Parser::_r_expr_3() {
+  auto res = _r_expr_2();
+  auto op_tok = obcl::Token::eof();
+  while (_consume_if_type({TOK_SYM_LT2, TOK_SYM_GT2}, &op_tok)) {
+    switch (op_tok.type) {
+    case TOK_SYM_LT2:
+      res = call_special(ASTExprCall::OP_LSHIFT, std::move(res), _r_expr_2());
+      break;
+    case TOK_SYM_GT2:
+      res = call_special(ASTExprCall::OP_RSHIFT, std::move(res), _r_expr_2());
+      break;
+    default:
+      UNREACHABLE();
+    }
+  }
+
+  return res;
+}
 
 // expr_2: expr_1 (('+' | '-') expr_1)*
-ASTExprPtr _r_expr_2();
+ASTExprPtr Parser::_r_expr_2() {
+  auto res = _r_expr_1();
+  auto op_tok = obcl::Token::eof();
+  while (_consume_if_type({TOK_SYM_ADD, TOK_SYM_SUB}, &op_tok)) {
+    switch (op_tok.type) {
+    case TOK_SYM_ADD:
+      res = call_special(ASTExprCall::OP_ADD, std::move(res), _r_expr_1());
+      break;
+    case TOK_SYM_SUB:
+      res = call_special(ASTExprCall::OP_SUB, std::move(res), _r_expr_1());
+      break;
+    default:
+      UNREACHABLE();
+    }
+  }
+
+  return res;
+}
 
 // expr_1: expr_unop (('*' | '/' | '%') expr_unop)*
-ASTExprPtr _r_expr_1();
+ASTExprPtr Parser::_r_expr_1() {
+  auto res = _r_expr_unop();
+  auto op_tok = obcl::Token::eof();
+  while (_consume_if_type({TOK_SYM_MUL, TOK_SYM_DIV, TOK_SYM_MOD}, &op_tok)) {
+    switch (op_tok.type) {
+    case TOK_SYM_MUL:
+      res = call_special(ASTExprCall::OP_MUL, std::move(res), _r_expr_unop());
+      break;
+    case TOK_SYM_DIV:
+      res = call_special(ASTExprCall::OP_DIV, std::move(res), _r_expr_unop());
+      break;
+    case TOK_SYM_MOD:
+      res = call_special(ASTExprCall::OP_MOD, std::move(res), _r_expr_unop());
+      break;
+    default:
+      UNREACHABLE();
+    }
+  }
+
+  return res;
+}
+
+// expr_unop:  expr_prim
+//	    | ('+' | '-' | '~' | '!') expr_unop
+ASTExprPtr Parser::_r_expr_unop() {
+  auto op_tok = obcl::Token::eof();
+  if (!_consume_if_type(
+          {TOK_SYM_ADD, TOK_SYM_SUB, TOK_SYM_TILDE, TOK_SYM_EXCLAM}))
+    return _r_expr_prim();
+
+  switch (op_tok.type) {
+  case TOK_SYM_ADD:
+    return call_special(ASTExprCall::OP_POS, op_tok, _r_expr_unop());
+  case TOK_SYM_SUB:
+    return call_special(ASTExprCall::OP_NEG, op_tok, _r_expr_unop());
+  case TOK_SYM_TILDE:
+    return call_special(ASTExprCall::OP_BNOT, op_tok, _r_expr_unop());
+  case TOK_SYM_EXCLAM:
+    return call_special(ASTExprCall::OP_NOT, op_tok, _r_expr_unop());
+  default:
+    UNREACHABLE();
+    return nullptr; //@TODO: unreachable should be done in such a way thay
+                    // compilers know it doesn't return
+  }
+}
+
+// expr_atom:  '(' expr ')'
+//	       | @int
+//	       | @float
+//	       | @str ;single-quotes: char
+//	       | @id
+ASTExprPtr Parser::_r_expr_atom() {
+
+  auto tok = _get_token();
+  switch (tok.type) {
+  case TOK_SYM_LRBRAC: {
+    auto res = _r_expr();
+    _consume_of_type(TOK_SYM_RRBRAC,
+                     "r:expr: expected ')' to match opening '(' in expression");
+    return res;
+  }
+
+  case obcl::TOK_CONST_INT:
+    return std::make_unique<ASTExprNumber>(
+        tok.loc, ASTExprNumber::Kind::U64,
+        static_cast<std::uint64_t>(tok.get_int()));
+
+  case obcl::TOK_CONST_FLOAT:
+    return std::make_unique<ASTExprNumber>(tok.loc, ASTExprNumber::Kind::F64,
+                                           tok.get_float());
+
+  case obcl::TOK_CONST_SQ:
+    return std::make_unique<ASTExprNumber>(
+        tok.loc, ASTExprNumber::Kind::CHAR,
+        static_cast<std::uint64_t>(tok.get_int()));
+
+  case obcl::TOK_ID:
+    return std::make_unique<ASTExprId>(tok);
+
+  default:
+    throw obcl::ParserError(_peek_token().loc, "r:expr: invalid token");
+  }
+}
 
 } // namespace milk

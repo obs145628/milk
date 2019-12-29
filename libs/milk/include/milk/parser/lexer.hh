@@ -68,6 +68,8 @@ static constexpr obcl::token_type_t TOK_SYM_SUB = 1435;
 static constexpr obcl::token_type_t TOK_SYM_MUL = 1436;
 static constexpr obcl::token_type_t TOK_SYM_DIV = 1437;
 static constexpr obcl::token_type_t TOK_SYM_MOD = 1438;
+static constexpr obcl::token_type_t TOK_SYM_TILDE = 1439;
+static constexpr obcl::token_type_t TOK_SYM_EXCLAM = 1440;
 
 extern const obcl::Lexer::CustomTokenInfos token_infos_custom[];
 

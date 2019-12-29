@@ -41,6 +41,17 @@ public:
   static constexpr const char *OP_GT = "@op:gt";
   static constexpr const char *OP_LE = "@op:le";
   static constexpr const char *OP_GE = "@op:ge";
+  static constexpr const char *OP_LSHIFT = "@op:lshift";
+  static constexpr const char *OP_RSHIFT = "@op:rshift";
+  static constexpr const char *OP_ADD = "@op:add";
+  static constexpr const char *OP_SUB = "@op:sub";
+  static constexpr const char *OP_MUL = "@op:mul";
+  static constexpr const char *OP_DIV = "@op:div";
+  static constexpr const char *OP_MOD = "@op:mod";
+  static constexpr const char *OP_POS = "@op:pos";
+  static constexpr const char *OP_NEG = "@op:neg";
+  static constexpr const char *OP_BNOT = "@op:bnot";
+  static constexpr const char *OP_NOT = "@op:not";
 
   ASTExprCall(const obcl::Location &loc, ASTExprPtr &&callee,
               ast_exprs_list_t &&args)

@@ -173,9 +173,9 @@ private:
   ASTExprPtr _r_expr_unop();
 
   // expr_prim:  expr_atom
-  //	    | expr_atom '(' expr_call_list ')'
-  //	    | expr_atom '[' expr ']'
-  //	    | expr_atom '.' @id
+  //	    | expr_prim '(' expr_call_list ')'
+  //	    | expr_prim '[' expr ']'
+  //	    | expr_prim '.' @id
   ASTExprPtr _r_expr_prim();
 
   // expr_atom:  '(' expr ')'

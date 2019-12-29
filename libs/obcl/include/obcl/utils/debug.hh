@@ -22,3 +22,5 @@ void panic_fn(const char *file, int line, const char *fun,
 } // namespace obcl
 
 #define PANIC(X) (::obcl::panic_fn(__FILE__, __LINE__, __func__, X))
+
+#define UNREACHABLE() PANIC("Unreachable")

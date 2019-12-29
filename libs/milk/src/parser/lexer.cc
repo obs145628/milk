@@ -63,6 +63,8 @@ const obcl::Lexer::CustomTokenInfos token_infos_custom[] = {
     DEF_SYM(MUL, "*"),
     DEF_SYM(DIV, "/"),
     DEF_SYM(MOD, "%"),
+    DEF_SYM(TILDE, "~"),
+    DEF_SYM(EXCLAM, "!"),
 
     {0, "", ""}};
 
