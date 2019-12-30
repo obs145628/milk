@@ -34,7 +34,7 @@ def:   fundef
 fundef: 'fn' @id '(' <fundef_argslist> ')' ':' <typelabel> <stmt>
 
 fundef_argslist:   <fundef_arg> (',' <fundef_arg>)*
-		 | ((empty))
+		 | @empty
 
 fundef_arg: ['const'] @id ':' <typelabel>
 
@@ -126,14 +126,17 @@ expr_unop:   expr_prim
 	| ('+' | '-' | '~' | '!') expr_unop
 
 
-expr_prim:   expr_atom
-	| expr_atom '(' expr_call_list ')'
-	| expr_atom '[' expr ']'
-	| expr_atom '.' @id
+expr_prim: expr_atom (expr_prim_right)*
 
+expr_prim_right:  '(' expr_list ')'
+				| '[' expr ']'
+				| '.' @id
 
 expr_atom:   '(' expr ')'
 	   | @int
 	   | @float
 	   | @str ;single-quotes: char
 	   | @id
+
+expr_list:  @empty
+		  | expr (',' expr)*

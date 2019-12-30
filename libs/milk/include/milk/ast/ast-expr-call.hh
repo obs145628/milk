@@ -52,6 +52,7 @@ public:
   static constexpr const char *OP_NEG = "@op:neg";
   static constexpr const char *OP_BNOT = "@op:bnot";
   static constexpr const char *OP_NOT = "@op:not";
+  static constexpr const char *OP_SUBSCRIPT = "@op:subscript";
 
   ASTExprCall(const obcl::Location &loc, ASTExprPtr &&callee,
               ast_exprs_list_t &&args)

@@ -55,7 +55,7 @@ private:
   ASTDefFunPtr _r_fundef();
 
   // fundef_argslist:  <fundef_arg> (',' <fundef_arg>)*
-  //		     | ((empty))
+  //		     | @empty
   //
   // fundef_arg: ['const'] @id ':' <typelabel>
   ast_storage_list_t _r_fundef_argslist();
@@ -172,10 +172,11 @@ private:
   //	    | ('+' | '-' | '~' | '!') expr_unop
   ASTExprPtr _r_expr_unop();
 
-  // expr_prim:  expr_atom
-  //	    | expr_prim '(' expr_call_list ')'
-  //	    | expr_prim '[' expr ']'
-  //	    | expr_prim '.' @id
+  // expr_prim: expr_atom (expr_prim_right)*
+  //
+  // expr_prim_right:  '(' expr_list ')'
+  //		     | '[' expr ']'
+  //		     | '.' @id
   ASTExprPtr _r_expr_prim();
 
   // expr_atom:  '(' expr ')'
@@ -184,6 +185,10 @@ private:
   //	       | @str ;single-quotes: char
   //	       | @id
   ASTExprPtr _r_expr_atom();
+
+  // expr_list:  @empty
+  //	       | expr (',' expr)*
+  ast_exprs_list_t _r_expr_list();
 };
 
 } // namespace milk

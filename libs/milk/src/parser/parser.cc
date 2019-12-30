@@ -14,13 +14,12 @@ namespace milk {
 
 namespace {
 
-ASTExprCallPtr call_special(const char *name, const obcl::Token &op,
+ASTExprCallPtr call_special(const char *name, const obcl::Location &loc,
                             ASTExprPtr &&arg) {
-  auto callee = std::make_unique<ASTExprId>(op.loc, name);
+  auto callee = std::make_unique<ASTExprId>(loc, name);
   ast_exprs_list_t args;
   args.push_back(std::move(arg));
-  return std::make_unique<ASTExprCall>(op.loc, std::move(callee),
-                                       std::move(args));
+  return std::make_unique<ASTExprCall>(loc, std::move(callee), std::move(args));
 }
 
 ASTExprCallPtr call_special(const char *name, ASTExprPtr &&arg1,
@@ -113,7 +112,7 @@ ASTDefFunPtr Parser::_r_fundef() {
 }
 
 // fundef_argslist:  <fundef_arg> (',' <fundef_arg>)*
-//		     | ((empty))
+//		     | @empty
 //
 // fundef_arg: ['const'] @id ':' <typelabel>
 ast_storage_list_t Parser::_r_fundef_argslist() {
@@ -121,9 +120,12 @@ ast_storage_list_t Parser::_r_fundef_argslist() {
   bool has_coma = false;
 
   while (true) {
-    if (!has_coma)
-      _consume_of_type(TOK_SYM_RRBRAC,
-                       "r_fundef_argslist: expected end of arguments ')'");
+    if (_peek_type() == TOK_SYM_RRBRAC) {
+      if (has_coma)
+        throw obcl::ParserError(_peek_token().loc,
+                                "Unexpected end of arguments ')' after ','");
+      break;
+    }
 
     auto beg_tok = obcl::Token::eof();
     bool is_const = _consume_if_type(TOK_KW_CONST, &beg_tok);
@@ -677,18 +679,57 @@ ASTExprPtr Parser::_r_expr_unop() {
 
   switch (op_tok.type) {
   case TOK_SYM_ADD:
-    return call_special(ASTExprCall::OP_POS, op_tok, _r_expr_unop());
+    return call_special(ASTExprCall::OP_POS, op_tok.loc, _r_expr_unop());
   case TOK_SYM_SUB:
-    return call_special(ASTExprCall::OP_NEG, op_tok, _r_expr_unop());
+    return call_special(ASTExprCall::OP_NEG, op_tok.loc, _r_expr_unop());
   case TOK_SYM_TILDE:
-    return call_special(ASTExprCall::OP_BNOT, op_tok, _r_expr_unop());
+    return call_special(ASTExprCall::OP_BNOT, op_tok.loc, _r_expr_unop());
   case TOK_SYM_EXCLAM:
-    return call_special(ASTExprCall::OP_NOT, op_tok, _r_expr_unop());
+    return call_special(ASTExprCall::OP_NOT, op_tok.loc, _r_expr_unop());
   default:
     UNREACHABLE();
     return nullptr; //@TODO: unreachable should be done in such a way thay
                     // compilers know it doesn't return
   }
+}
+
+// expr_prim: expr_atom (expr_prim_right)*
+//
+// expr_prim_right:  '(' expr_list ')'
+//		     | '[' expr ']'
+//		     | '.' @id
+ASTExprPtr Parser::_r_expr_prim() {
+  auto res = _r_expr_atom();
+  auto op_tok = obcl::Token::eof();
+
+  while (_consume_if_type({TOK_SYM_LRBRAC, TOK_SYM_LSBRAC, TOK_SYM_DOT},
+                          &op_tok)) {
+    switch (op_tok.type) {
+
+    case TOK_SYM_LRBRAC: {
+      auto args = _r_expr_list();
+      auto end_tok = _consume_of_type(
+          TOK_SYM_RRBRAC, "r:expr: expected ')' to end call's arguments list");
+      obcl::Location loc(res->loc(), end_tok.loc);
+      res = std::make_unique<ASTExprCall>(loc, std::move(res), std::move(args));
+      break;
+    }
+
+    case TOK_SYM_LSBRAC: {
+      auto idx = _r_expr();
+      _consume_of_type(TOK_SYM_RSBRAC,
+                       "r:expr: expected ']' to end subscript operator");
+      res = call_special(ASTExprCall::OP_SUBSCRIPT, std::move(res),
+                         std::move(idx));
+      break;
+    }
+
+    default:
+      UNREACHABLE();
+    };
+  }
+
+  return res;
 }
 
 // expr_atom:  '(' expr ')'
@@ -727,6 +768,27 @@ ASTExprPtr Parser::_r_expr_atom() {
   default:
     throw obcl::ParserError(_peek_token().loc, "r:expr: invalid token");
   }
+}
+
+// expr_list:  @empty
+//	       | expr (',' expr)*
+ast_exprs_list_t Parser::_r_expr_list() {
+  ast_exprs_list_t res;
+  bool has_coma = false;
+
+  while (true) {
+    if (_peek_type() == TOK_SYM_RRBRAC) {
+      if (has_coma)
+        throw obcl::ParserError(_peek_token().loc,
+                                "Unexpected end of arguments ')' after ','");
+      break;
+    }
+
+    res.push_back(_r_expr());
+    has_coma = _consume_if_type(TOK_SYM_COMA);
+  }
+
+  return res;
 }
 
 } // namespace milk
