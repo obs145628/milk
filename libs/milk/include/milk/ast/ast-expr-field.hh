@@ -22,9 +22,13 @@ namespace milk {
 /// val.<fieldname>
 class ASTExprField : public ASTExpr {
 public:
+  ASTExprField(const obcl::Location &loc, ASTExprPtr &&val,
+               const std::string &field)
+      : ASTExpr(loc), _val(std::move(val)), _field(field) {}
+
   ASTExprField(ASTExprPtr &&val, const obcl::Token &field)
-      : ASTExpr(obcl::Location(val->loc(), field.loc)), _val(std::move(val)),
-        _field(field.val) {
+      : ASTExprField(obcl::Location(val->loc(), field.loc), std::move(val),
+                     field.val) {
     assert(field.type == obcl::TOK_ID);
   }
 

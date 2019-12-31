@@ -724,6 +724,12 @@ ASTExprPtr Parser::_r_expr_prim() {
       break;
     }
 
+    case TOK_SYM_DOT: {
+      auto field_name = _consume_of_type(
+          obcl::TOK_ID, "r:expr: expected field name after '.' symbol");
+      res = std::make_unique<ASTExprField>(std::move(res), field_name);
+      break;
+    }
     default:
       UNREACHABLE();
     };
