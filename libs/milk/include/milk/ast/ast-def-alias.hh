@@ -1,5 +1,4 @@
-//===--ast/ast-def-alias.hh - ASTDefAlias class definition -----------------*-
-// C++ -*-===//
+//===--ast/ast-def-alias.hh - ASTDefAlias class definition ------*- C++ -*-===//
 //
 // milk compiler library
 // Author: Steven Lariau

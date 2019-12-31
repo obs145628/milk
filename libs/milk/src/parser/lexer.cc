@@ -26,7 +26,7 @@ const obcl::Lexer::CustomTokenInfos token_infos_custom[] = {
     DEF_KW(RETURN, "return"),
 
     DEF_SYM(LCBRAC, "{"),
-    DEF_SYM(RRBRAC, "}"),
+    DEF_SYM(RCBRAC, "}"),
     DEF_SYM(LRBRAC, "("),
     DEF_SYM(RRBRAC, ")"),
     DEF_SYM(LSBRAC, "["),

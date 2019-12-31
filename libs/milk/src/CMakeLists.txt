@@ -3,6 +3,10 @@ set(AST_SRC
   ast/ast-visitor.cc
 )
 
+set(COMPILER_SRC
+  compiler/compiler.cc
+)
+
 set(PARSER_SRC
   parser/lexer.cc
   parser/parser.cc
@@ -10,6 +14,7 @@ set(PARSER_SRC
 
 set(SRC
   ${AST_SRC}
+  ${COMPILER_SRC}
   ${PARSER_SRC}
 )
 

@@ -10,8 +10,9 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 include_directories(SYSTEM "extern/Catch2/single_include")
 
-include_directories("libs/obcl/include/")
 include_directories("libs/cgen/include/")
+include_directories("libs/milk/include/")
+include_directories("libs/obcl/include/")
 
 project(mlk)
 
