@@ -5,31 +5,10 @@ TOP_TESTS_DIR = os.path.join(os.path.dirname(os.path.realpath(__file__)),
                              "../../../../tests")
 sys.path.append(TOP_TESTS_DIR)
 
+'''
 from pyobts.basicts import Result
 from cgents import CgenTS
 import pyobts.ucmd as ucmd
-
-ERR_MSG = '''Invalid return code: expected {}, got {}
-(output)
-<BEG>{}<END>
-(err):
-<BEG>{}<END>'''
-
-PREPARE_ERR_MSG = '''Prepare command '{}' failed with code {}:
-(output)
-<BEG>{}<END>
-(err):
-<BEG>{}<END>'''
-
-INVALID_OUTPUT_ERR_MSG = '''Invalid output:
-(you)
-<BEG>{}<END>
-(ref):
-<BEG>{}<END>'''
-
-MODE = os.getenv('CGEN_CC_TEST', 'run')
-TMP_DIR = '/tmp/tests_cgen_cc'
-CC_PATH = '/usr/bin/gcc'
 
 class CgenCCTS(CgenTS):
 
@@ -178,7 +157,39 @@ class CgenCCTS(CgenTS):
 
         return Result.Ok()
 
+'''
+
+from pyobts.testsuite import TestSuite, TestRunner, UnitTest
+from pyobts.testfinder import FilesTestFinder
+from pyobts.cmdrunner import CmdRunner, CmdTest, checker_str, checker_empty, checker_file
+
+BUILD_DIR = sys.argv[1]
+PY_DIR = os.path.dirname(os.path.realpath(__file__))
+MODE = os.getenv('CGEN_CC_TEST', 'run')
+
+TMP_DIR = '/tmp/tests_cgen_cc'
+SAMPLES_DIR = os.path.join(PY_DIR, '../examples')
+CC_PATH = '/usr/bin/gcc'
+LEXER_PATH = os.path.join(BUILD_DIR, 'bin/cgen-test-lexer')
+CGEN_CL_PATH = os.path.join(BUILD_DIR, 'bin/cgen-cc')
+STD_SRC_PATH = os.path.join(SAMPLES_DIR, '../../cgen-libs/cgen-std/lib.cg')
+STD_LIB_PATH = os.path.join(BUILD_DIR, './lib/libcgen-libs-std.a')
+
+
+def get_cmds(path):
+    t = CmdTest('/bin/cat', [path], exp_ret=0, check_out=checker_file(path), check_err=checker_empty())
+    return [t]
+
 if __name__ == '__main__':
-    ts = CgenCCTS()
-    valid = ts.run_all()
-    sys.exit(0 if valid else 1)
+
+    finder = FilesTestFinder()
+    finder.add_dir('/home/obs/rep/milk/libs/cgen/tests/examples/', False)
+    finder.add_filter_endswith('.cg')
+    tests = finder.find()
+    
+    runner = CmdRunner(get_cmds)
+    ts = TestSuite('Cgen Compiler', tests, runner)
+    ts.run_and_exit()
+
+
+
