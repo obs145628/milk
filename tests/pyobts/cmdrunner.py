@@ -5,6 +5,10 @@ def read_file_bin(path):
     with open(path, "rb") as f:
         return f.read()
 
+def write_file_bin(path, data):
+    with open(path, 'wb') as f:
+        f.write(data)
+    
 
 CHECKER_STR_SHORT = '''Invalid {} stream:
  --   actual:
@@ -76,11 +80,12 @@ def checker_file(exp_path):
 
 class CmdTest:
 
-    def __init__(self, path, args, exp_ret=None, check_out=None, check_err=None):
+    def __init__(self, path, args, exp_ret=None, check_out=None, check_err=None, out_save_path=None):
         self.cmd = [path] + list(args)
         self.exp_ret = exp_ret
         self.check_out =  check_out
         self.check_err = check_err
+        self.out_save_path = out_save_path
 
     def run(self, t):
 
@@ -109,6 +114,9 @@ class CmdTest:
             t.err_short = 'Full command: {}\n{}\n'.format(' '.join(self.cmd), '\n'.join(all_err_short))
             return False
 
+        if self.out_save_path is not None:
+            write_file_bin(self.out_save_path, cmd_out)
+        
         return True
 
 class CmdRunner:

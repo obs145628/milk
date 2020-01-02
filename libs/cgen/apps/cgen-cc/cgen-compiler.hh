@@ -18,6 +18,7 @@
 #include "cgen/types/type-context.hh"
 #include <memory>
 #include <set>
+#include <stdexcept>
 #include <string>
 #include <vector>
 
@@ -75,6 +76,11 @@ public:
   /// source code
   void set_cc_debug(bool opt) { _cc_debug = opt; }
 
+  /// If \p ret_code is true, the program will exit with a specific error code
+  /// when an error happens, depending on the error king (otherwhise, always
+  /// exit with 1)
+  void set_custom_ret_code(bool ret_code) { _custom_ret_code = ret_code; }
+
   /// Add a compiled static / shared library to be linked when building a
   /// binary file
   void add_c_lib(const std::string &path) { _c_libs.push_back(path); }
@@ -105,6 +111,8 @@ private:
 
   std::string _get_tmp_path(const std::string &suffix);
 
+  void _compile_error(const std::exception &e, int code);
+
   std::vector<std::string> _input_files;
   std::vector<std::string> _c_libs;
   std::string _output_c_file;
@@ -117,6 +125,7 @@ private:
   bool _build_tmp;
 
   bool _cc_debug;
+  bool _custom_ret_code;
 
   std::set<task_t> _tasks_done;
   std::set<task_t> _tasks_todo;

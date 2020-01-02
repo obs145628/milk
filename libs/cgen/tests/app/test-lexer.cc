@@ -23,7 +23,7 @@ int main(int argc, char **argv) {
 
   catch (obcl::LexerError &err) {
     std::cerr << "Compilation error: " << std::endl << err.what() << std::endl;
-    return 1;
+    return 2;
   }
 
   return 0;

@@ -15,14 +15,14 @@ constexpr CGenCompiler::task_t CGenCompiler::TASK_CTRANSLATE;
 constexpr CGenCompiler::task_t CGenCompiler::TASK_BUILD_OBJECT;
 constexpr CGenCompiler::task_t CGenCompiler::TASK_BUILD_BINARY;
 
-CGenCompiler::CGenCompiler() : _ast(nullptr), _build_tmp(false) {}
+CGenCompiler::CGenCompiler()
+    : _ast(nullptr), _build_tmp(false), _cc_debug(false),
+      _custom_ret_code(false) {}
 
 namespace {
-
-void compile_error(const std::exception &e) {
-  std::cerr << "Compilation failed: " << std::endl << e.what();
-  std::exit(1);
-}
+constexpr int CODE_LEX = 2;
+constexpr int CODE_PARSE = 3;
+constexpr int CODE_TYPE = 4;
 } // namespace
 
 void CGenCompiler::run() {
@@ -98,9 +98,9 @@ void CGenCompiler::_run_parse() {
     _ast = _parser->ast();
 
   } catch (obcl::LexerError &e) {
-    compile_error(e);
+    _compile_error(e, CODE_LEX);
   } catch (obcl::ParserError &e) {
-    compile_error(e);
+    _compile_error(e, CODE_PARSE);
   }
 }
 
@@ -110,7 +110,7 @@ void CGenCompiler::_run_type() {
     _type_ctx = std::make_unique<cgen::TypeContext>();
     _type_ctx->build(*_ast);
   } catch (cgen::TypeError &e) {
-    compile_error(e);
+    _compile_error(e, CODE_TYPE);
   }
 }
 
@@ -168,4 +168,9 @@ std::string CGenCompiler::_get_tmp_or_dft_path(const std::string &input,
 std::string CGenCompiler::_get_tmp_path(const std::string &suffix) {
   static int id = 0;
   return "/tmp/cgen-cc_" + std::to_string(++id) + suffix;
+}
+
+void CGenCompiler::_compile_error(const std::exception &e, int code) {
+  std::cerr << "Compilation failed: " << std::endl << e.what();
+  std::exit(_custom_ret_code ? code : 1);
 }

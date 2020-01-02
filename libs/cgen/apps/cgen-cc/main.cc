@@ -11,6 +11,8 @@ int main(int argc, char **argv) {
   args.add_flag("stage-ctranslate", "Run translation to C");
   args.add_flag("build-object", "Build object file (.o)");
   args.add_flag("build-binary", "Build binary file");
+  args.add_flag("custom-ret-code",
+                "Use specific return code depending on the error kind");
   args.add_flag("cc-debug", "Enable debug flags for the C Compiler");
   args.add_option("output", "Output file, or '-' for stdin, interpretation "
                             "depends on the stage option");
@@ -34,6 +36,9 @@ int main(int argc, char **argv) {
 
   if (args.has_flag("cc-debug"))
     cc.set_cc_debug(true);
+
+  if (args.has_flag("custom-ret-code"))
+    cc.set_custom_ret_code(true);
 
   if (args.has_flag("stage-ctranslate")) {
     cc.do_ctranslate();
