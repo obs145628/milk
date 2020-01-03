@@ -5,9 +5,9 @@ TOP_TESTS_DIR = os.path.join(os.path.dirname(os.path.realpath(__file__)),
                              "../../../../tests")
 sys.path.append(TOP_TESTS_DIR)
 
-from pyobts.testsuite import TestSuite, TestRunner, UnitTest
+from pyobts.testsuite import TestSuite
 from pyobts.testfinder import FilesTestFinder
-from pyobts.cmdrunner import CmdRunner, CmdTest, checker_str, checker_empty, checker_file
+import pyobts.cmdrunner as cmdr
 
 STAGES = {
     'lex': 2,
@@ -81,8 +81,8 @@ class TestBuilder:
         return stage, valid
 
     def cmd_lexer(self, exp_ret):
-        check_err = checker_empty() if exp_ret == 0 else None
-        return CmdTest(LEXER_PATH, [self.path], exp_ret=exp_ret, check_err=check_err)
+        check_err = cmdr.checker_empty() if exp_ret == 0 else None
+        return cmdr.CmdTest(LEXER_PATH, [self.path], exp_ret=exp_ret, check_err=check_err)
 
     def cmd_cgen_cl(self, exp_ret, others=None, use_std=False, out_obj=None, out_bin=None):
         assert (not (out_obj is not None and out_bin is not None))
@@ -100,18 +100,18 @@ class TestBuilder:
             
             
         others += ['--custom-ret-code']
-        check_err = checker_empty() if exp_ret == 0 else None
-        return CmdTest(CGEN_CL_PATH, src + others, exp_ret=exp_ret, check_err=check_err)
+        check_err = cmdr.checker_empty() if exp_ret == 0 else None
+        return cmdr.CmdTest(CGEN_CL_PATH, src + others, exp_ret=exp_ret, check_err=check_err)
 
     def cmd_cc(self, src_file, out_bin):
         args = [src_file, '-o', out_bin]
-        return CmdTest(CC_PATH, args, exp_ret=0, check_out=checker_empty(), check_err=checker_empty())
+        return cmdr.CmdTest(CC_PATH, args, exp_ret=0, check_out=cmdr.checker_empty(), check_err=cmdr.checker_empty())
 
     def cmd_bin_save(self, bin_path, out_file):
-        return CmdTest(bin_path, [], exp_ret=0, out_save_path=out_file)
+        return cmdr.CmdTest(bin_path, [], exp_ret=0, out_save_path=out_file)
 
     def cmd_bin_check(self, bin_path, out_file):
-        return CmdTest(bin_path, [], exp_ret=0, check_out=checker_file(out_file))
+        return cmdr.CmdTest(bin_path, [], exp_ret=0, check_out=cmdr.checker_file(out_file))
     
     def get_cmds(self):
         stage, valid = self.get_test_type()
@@ -153,14 +153,14 @@ class TestBuilder:
             builder = TestBuilder(path)
             return builder.get_cmds()
 
-        return CmdRunner(runner_fn)
+        return cmdr.CmdRunner(runner_fn)
     
 
 if __name__ == '__main__':
     os.makedirs(TMP_DIR, exist_ok=True)
     
     finder = FilesTestFinder()
-    finder.add_dir('/home/obs/rep/milk/libs/cgen/tests/examples/', False)
+    finder.add_dir(SAMPLES_DIR, False)
     finder.add_filter_endswith('.cg')
     tests = finder.find()
     
