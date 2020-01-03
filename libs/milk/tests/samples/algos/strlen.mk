@@ -1,5 +1,5 @@
 
-fn my_strlen(str: &const[] char) : i32
+fn my_strlen(str: &[]const char) : i32
 {
   let len : i32 = 0;
   while (str[len] != 0)

@@ -1,5 +1,5 @@
 
-fn binsearch(arr: &[] i32, len: i32, x: i32)
+fn binsearch(arr: &[] i32, len: i32, x: i32) : void
 {
   let beg: i32 = 0;
   let end = len;

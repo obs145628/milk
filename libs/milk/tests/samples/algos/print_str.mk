@@ -1,4 +1,4 @@
-fn print_str(str: &const[] char) : void
+fn print_str(str: &[]const char) : void
 {
   let i : i32 = 0;
   while (str[i] != 0)

@@ -1,5 +1,5 @@
 
-fn concat_str(s1: &const[] char, s2: &const[] char) : &[] char
+fn concat_str(s1: &[]const char, s2: &[]const char) : &[] char
 {
   let len1 = my_strlen(s1);
   let len2 = my_strlen(s2);

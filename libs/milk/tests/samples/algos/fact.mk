@@ -14,16 +14,6 @@ fn fact_iter(x: u64): u64
   return res;
 }
 
-int64_t fact_iter(int64_t x) {
-  int64_t res = 1;
-  while (x >= 2) {
-    res *= x;
-    x -= 1;
-  }
-
-  return res;
-}
-
 fn main() : i32 {
   let i : i32 = 0;
   while (i < 10) {

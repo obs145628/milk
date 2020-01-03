@@ -3,7 +3,7 @@
 fn choose_pivot(arr: &[] int, begn: usize, end: usize): usize {
   let i = beg;
   let j = beg + (end - beg) / 2;
-  lett k = end - 1;
+  let k = end - 1;
 
   if (arr[i] > arr[j]) {
     if (arr[j] > arr[k])

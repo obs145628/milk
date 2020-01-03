@@ -2,7 +2,7 @@
 
 fn merge(arr: &[] int, beg: usize, m: usize, end: usize): void {
   let len = end - beg;
-  const tmp = v0h_infinite_array_ref(let, i32(0));
+  const tmp = v0h_infinite_array_ref(len, i32(0));
 
   let i1 = beg;
   let i2 = m;
