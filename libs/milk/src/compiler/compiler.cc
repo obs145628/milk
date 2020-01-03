@@ -12,30 +12,27 @@
 namespace milk {
 
 namespace {
-
-void compile_error(const std::exception &e) {
-  std::cerr << "Compilation failed: " << std::endl << e.what();
-  std::exit(1);
-}
-
+static constexpr int ERR_LEX = 2;
+static constexpr int ERR_PARSE = 3;
 } // namespace
 
-Compiler::Compiler() {}
+Compiler::Compiler() : _custom_ret_code(false) {}
 
 void Compiler::parse_file(const std::string &path) {
-  (void)path;
-  (void)path;
-
   auto parser = std::make_unique<Parser>();
 
   try {
-
     parser->parse_file(path);
   } catch (obcl::LexerError &e) {
-    compile_error(e);
+    _compile_error(e, ERR_LEX);
   } catch (obcl::ParserError &e) {
-    compile_error(e);
+    _compile_error(e, ERR_PARSE);
   }
+}
+
+void Compiler::_compile_error(const std::exception &e, int code) {
+  std::cerr << "Compilation failed: " << std::endl << e.what();
+  std::exit(_custom_ret_code ? code : 1);
 }
 
 } // namespace milk

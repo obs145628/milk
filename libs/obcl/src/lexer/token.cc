@@ -1,4 +1,5 @@
 #include "lexer/token.hh"
+#include "utils/debug.hh"
 #include <cassert>
 
 namespace obcl {
@@ -18,6 +19,22 @@ long Token::get_int() const {
 double Token::get_float() const {
   assert(type == TOK_CONST_FLOAT);
   return std::stod(val);
+}
+
+int Token::get_char() const {
+  assert(type == TOK_CONST_SQ);
+  if (val[1] == '\\') {
+    switch (val[2]) {
+    case 'n':
+      return '\n';
+    case 't':
+      return '\t';
+    default:
+      UNREACHABLE();
+    }
+  }
+
+  return val[1];
 }
 
 void Token::add_type(token_type_t type, const char *repr) {

@@ -494,13 +494,9 @@ ASTExprPtr Parser::_r_expr_12() {
     return left;
   }
 
+  _get_token();
   auto right = _r_expr_12();
-  obcl::Location loc(left->loc(), right->loc());
-  auto callee = std::make_unique<ASTExprId>(loc, fn);
-  ast_exprs_list_t args;
-  args.push_back(std::move(left));
-  args.push_back(std::move(right));
-  return std::make_unique<ASTExprCall>(loc, std::move(callee), std::move(args));
+  return call_special(fn, std::move(left), std::move(right));
 }
 
 // expr_11:  expr_10
@@ -674,7 +670,7 @@ ASTExprPtr Parser::_r_expr_1() {
 ASTExprPtr Parser::_r_expr_unop() {
   auto op_tok = obcl::Token::eof();
   if (!_consume_if_type(
-          {TOK_SYM_ADD, TOK_SYM_SUB, TOK_SYM_TILDE, TOK_SYM_EXCLAM}))
+          {TOK_SYM_ADD, TOK_SYM_SUB, TOK_SYM_TILDE, TOK_SYM_EXCLAM}, &op_tok))
     return _r_expr_prim();
 
   switch (op_tok.type) {
@@ -766,13 +762,13 @@ ASTExprPtr Parser::_r_expr_atom() {
   case obcl::TOK_CONST_SQ:
     return std::make_unique<ASTExprNumber>(
         tok.loc, ASTExprNumber::Kind::CHAR,
-        static_cast<std::uint64_t>(tok.get_int()));
+        static_cast<std::uint64_t>(tok.get_char()));
 
   case obcl::TOK_ID:
     return std::make_unique<ASTExprId>(tok);
 
   default:
-    throw obcl::ParserError(_peek_token().loc, "r:expr: invalid token");
+    throw obcl::ParserError(tok.loc, "r:expr: invalid token");
   }
 }
 

@@ -27,7 +27,15 @@ public:
 
   void parse_file(const std::string &path);
 
+  /// If /p use_custom is true, when a compiler error happens, a specific error
+  /// code is returned depending on the error kind. Otherwhise, all errors
+  /// returns with error 1
+  void set_custom_ret_code(bool use_custom) { _custom_ret_code = use_custom; }
+
 private:
+  bool _custom_ret_code;
+
+  void _compile_error(const std::exception &e, int code);
 };
 
 } // namespace milk

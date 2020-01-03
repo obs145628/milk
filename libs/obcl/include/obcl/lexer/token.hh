@@ -58,6 +58,10 @@ struct Token {
   /// \returns the double value
   double get_float() const;
 
+  /// token must of type CONST_SQ
+  /// \returns the actual char inside the
+  int get_char() const;
+
   /// add a new custom token type
   /// @param repr - string representation, for debug porposes. Should be a
   /// static string
