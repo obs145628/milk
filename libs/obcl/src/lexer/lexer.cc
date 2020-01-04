@@ -41,7 +41,7 @@ obcl::Position get_pos(obcl::Stream &is) {
 namespace obcl {
 
 Lexer::Lexer(const CustomTokenInfos *custom)
-    : _stream(nullptr), _peek(Token::eof()) {
+    : _stream(nullptr), _peek(Token::null()) {
 
   for (; custom->type_id != 0; ++custom) {
     Token::add_type(custom->type_id, custom->repr);
@@ -94,21 +94,21 @@ Token Lexer::peek_token() {
 
 Token Lexer::get_token() {
   Token res = peek_token();
-  _peek = Token::eof();
+  if (!res.is_eof())
+    _peek = Token::null();
   return res;
 }
 
 bool Lexer::is_eof() {
   _fetch_peek();
   return _peek.type == TOK_EOF;
-  ;
 }
 
 void Lexer::_fetch_peek() {
-
-  if (_peek.type != TOK_EOF)
+  if (!_peek.is_null())
     return;
   _peek = _read_token();
+  assert(!_peek.is_null());
 }
 
 Token Lexer::_read_token() {
@@ -280,6 +280,7 @@ void Lexer::_set_stream(std::unique_ptr<Stream> &&s) {
   _stream = std::move(s);
   if (prev.get())
     _old_streams.push_back(std::move(prev));
+  _peek = Token::null();
 }
 
 } // namespace obcl

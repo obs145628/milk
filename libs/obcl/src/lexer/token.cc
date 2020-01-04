@@ -45,6 +45,7 @@ void Token::add_type(token_type_t type, const char *repr) {
 
 std::map<token_type_t, const char *> &Token::_get_type_reprs() {
   static std::map<token_type_t, const char *> res = {
+      {TOK_NULL, "NULL"},
       {TOK_ERR, "ERR"},
       {TOK_EOF, "EOF"},
       {TOK_CONST_SQ, "CONST_SQ"},

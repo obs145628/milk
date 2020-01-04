@@ -20,6 +20,7 @@
 namespace obcl {
 
 /// default token types
+constexpr token_type_t TOK_NULL = 0;
 constexpr token_type_t TOK_ERR = 1;
 constexpr token_type_t TOK_EOF = 2;
 constexpr token_type_t TOK_CONST_SQ = 3;
@@ -41,10 +42,16 @@ struct Token {
       : loc(loc), type(type), val(val) {}
 
   /// @returns an EOF token
-  /// This token is special, it's the only one connected to no stream
+  /// It means there is no file or we reached the end of a file
   static Token eof() {
     Position pos0(0, 0, 0, nullptr);
     return Token(Location(pos0, pos0), TOK_EOF, "");
+  }
+
+  /// @returns a null token
+  static Token null() {
+    Position pos0(0, 0, 0, nullptr);
+    return Token(Location(pos0, pos0), TOK_NULL, "");
   }
 
   /// \returns a string representation of the token type
@@ -66,6 +73,12 @@ struct Token {
   /// @param repr - string representation, for debug porposes. Should be a
   /// static string
   static void add_type(token_type_t type, const char *repr);
+
+  /// Check if this is a null token (no stream attached to it)
+  bool is_null() const { return type == TOK_NULL; }
+
+  /// Check if this a EOF token
+  bool is_eof() const { return type == TOK_EOF; }
 
 private:
   static std::map<token_type_t, const char *> &_get_type_reprs();

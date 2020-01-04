@@ -6,6 +6,11 @@ namespace obcl {
 
 std::ostream &operator<<(std::ostream &os, const Location &loc) {
 
+  if (!loc.begin.stream || !loc.end.stream) {
+    os << "(End Of File)";
+    return os;
+  }
+
   os << loc.begin.stream->name() << ":";
   if (loc.begin.row == loc.end.row)
     os << loc.begin.row << ":" << loc.begin.col << "-" << loc.end.col;
@@ -18,8 +23,10 @@ std::ostream &operator<<(std::ostream &os, const Location &loc) {
 void Location::pretty_print_code(std::ostream &os) const {
 
   // TODO: maby isn't possible
-  if (begin.stream != end.stream)
+  if (!begin.stream || !end.stream || begin.stream != end.stream) {
     os << "[UNPRINTABLE CODE]" << std::endl;
+    return;
+  }
 
   for (std::size_t row = begin.row; row <= end.row; ++row) {
     auto line = begin.stream->extract_row(row);
