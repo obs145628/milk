@@ -177,6 +177,7 @@ private:
   // expr_prim_right:  '(' expr_list ')'
   //		     | '[' expr ']'
   //		     | '.' @id
+  //                 | '::' @id
   ASTExprPtr _r_expr_prim();
 
   // expr_atom:  '(' expr ')'

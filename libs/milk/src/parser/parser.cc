@@ -694,12 +694,13 @@ ASTExprPtr Parser::_r_expr_unop() {
 // expr_prim_right:  '(' expr_list ')'
 //		     | '[' expr ']'
 //		     | '.' @id
+//                   | '::' @id
 ASTExprPtr Parser::_r_expr_prim() {
   auto res = _r_expr_atom();
   auto op_tok = obcl::Token::eof();
 
-  while (_consume_if_type({TOK_SYM_LRBRAC, TOK_SYM_LSBRAC, TOK_SYM_DOT},
-                          &op_tok)) {
+  while (_consume_if_type(
+      {TOK_SYM_LRBRAC, TOK_SYM_LSBRAC, TOK_SYM_DOT, TOK_SYM_COLON2}, &op_tok)) {
     switch (op_tok.type) {
 
     case TOK_SYM_LRBRAC: {
@@ -723,9 +724,19 @@ ASTExprPtr Parser::_r_expr_prim() {
     case TOK_SYM_DOT: {
       auto field_name = _consume_of_type(
           obcl::TOK_ID, "r:expr: expected field name after '.' symbol");
-      res = std::make_unique<ASTExprField>(std::move(res), field_name);
+      res = std::make_unique<ASTExprField>(ASTExprField::Kind::FD_STRUCT,
+                                           std::move(res), field_name);
       break;
     }
+
+    case TOK_SYM_COLON2: {
+      auto field_name = _consume_of_type(
+          obcl::TOK_ID, "r:expr: expected field name after '::' symbol");
+      res = std::make_unique<ASTExprField>(ASTExprField::Kind::FD_MOD,
+                                           std::move(res), field_name);
+      break;
+    }
+
     default:
       UNREACHABLE();
     };
