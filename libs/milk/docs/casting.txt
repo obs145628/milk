@@ -6,7 +6,10 @@ Implicit casting
 Implicit casting can be done for:
 
 - cast from any scalar type to any other scalar type
-- cast from T& to T
+- cast from & T to T
+- cast from &const T to T
+- cast from & T to &const T
+- cast from &[] T to &[]const T
 
 It is performed when:
 - calling a function: casting every argument to the type of argument def
@@ -26,6 +29,11 @@ The call for F(x: T) is only valid if static_cast{F}(x: T) is valid.
 They works exactly like static_cast.
 So why have static_cast ? static_cast is a template function, and can be used as such.
 Casting functions has no templates features (so it must be a true type)
+
+
+
+
+
 
 [V-CASTS]
 

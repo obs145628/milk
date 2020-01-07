@@ -1,45 +1,48 @@
 [V0] 
 struct are the closest form to OOP
 
-struct can contain fields of any type 
-(except &, compiler cannot safely assume it will always be valid)
-fields can be const (their value cannot be changed)
+A struct is composed of a list of fields.
+
+Attributes:
+struct can contain attributes of any type 
+(except refs (& / &[]), compiler cannot safely assume it will always be valid)
+attributes can be const (their value cannot be changed)
 
 [V0-HACK]
 Struct can contain reference members.
 Incentive: can cause memory corruption, but only way to use heap allocated mem in V0
 
-It can also contains methods
+Methods:
 Methods are defined like any other functions.
-Except they can have a const attribute to say the object isn't modified
+Except they can have a const property to say the object isn't modified
 Inside the method, there is an automatically defined argument self.
-It is of type &Self or const &Self.
-Actually, a method is a function with another parameter for &Self.
+It is of type & Self or &const Self.
+Actually, a method is just a function with an extra first parameter for self.
 
 
+Static fields:
 
-[V-MOD]
-Every field / method can have a visibility specifier: public / private
-Private members are only accessible from within the struct.
-
-Static
+Static methods:
 We can define a static method (does not need a class instance).
-We use 'static fn'
+We use 'fn static'
 
-[V-GLOBAL]
-We can define a static variable.
-This is exaclty like a global variable,
-except it's scoped to the class
+Static attributes:
+Global variables.
+Not in V0, more infos below
 
-Constructor / destructor:
 
-Each class destructor that does nothing, can be changed.
-After the destructor of the class is called, the destructor of all it's members is also called.
+Object construction:
+There is no constructor method. 
+To construct an object we use the constructor syntax:
+StructName { field1: val1, field2: val2, ... }
+All fields must be initialized.
+
+Object destruction:
+Like any other variable, the object is destructed when it goes out of scope.
 The destruction order is undefined.
+The destructors of all attributes are also called.
+By default, the destructor does nothing else, can be changed. (see special methods)
 
-The class has no constructor method. To construct a new imstance,
-the syntax is: ClassName (fields ). all fields must be defined.
-(Like a function call with named arguments)
 
 Important methods:
 
@@ -48,28 +51,31 @@ Importants methods are either:
 - Special methods, they start with '__', 
 and have a special signification for the compiler.
 some methods may have a default implementation, for some requirements.
-You cans use '=default' to use it.
+You can replace body method with '= default;' to use it.
 
-[SPECIAL] __copy(): Self (Copy concept)
+[SPECIAL][DEFAULT] __copy(): Self (Copy concept)
 Copy constructor for an object.
 This is only implemented for which the copy would be really fast
 Default implem simply copies all the bytes. 
 Most of the time that's what you want to do.
 Not defined by default.
-The default can only be used if every fields have the Copy concept
+The default copy all fields. Can only be used if every fields have the Copy concept
 
 
-[SPECIAL] __drop(): void
+[SPECIAL][DEFAULT] __drop(): void
 Called before object destruction. Does nothing by default.
+The default does nothing
 
-clone() const: Self (Clone concept)
+[DEFAULT] clone() const: Self (Clone concept)
 Create a deep full, long copy of the object.
+The default clone all fields. Can only be used if every fields have the Clone concept
 
 
-static new() : Self (Default concept)
+[DEFAULT] static new() : Self (Default concept)
 Create an object with the default initialization
 Default implem simply call the default implem on all child classes
-The default can only be used if every fields have the Default Concept
+The default use default init on all fields. Can only be used if every fields have the Default Concept
+
 
 
 Struct and constantness:
@@ -79,6 +85,8 @@ What's more, every accessed field is a const-reference.
 For const field, when we try to access it, we get a const-reference.
 
 
+
+
 Example:
 
 struct Vec2f
@@ -86,14 +94,14 @@ struct Vec2f
 
     fn __copy() const : Vec2f = default;
 
-    static fn new(x: f32, y: f32) : Vec2f {
+    fn static new(x: f32, y: f32) : Vec2f {
         return Vec2f (
             _x: x,
             _y: y
         )
     }
 
-    static fn zero(): Vec2f
+    fn static zero(): Vec2f
     {
         return Vec2::new(0, 0);
     }
@@ -106,3 +114,20 @@ struct Vec2f
     let _x: f32;
     let _y: f32;
 }
+
+
+
+
+
+
+
+
+
+[V-MOD]
+Every field / method can have a visibility specifier: public / private
+Private members are only accessible from within the struct.
+
+[V-GLOBAL]
+We can define a static attribute.
+This is exaclty like a global variable,
+except it's scoped to the class

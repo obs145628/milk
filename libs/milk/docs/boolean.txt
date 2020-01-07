@@ -2,6 +2,7 @@
 
 A boolean is implemented as a struct, but with some custom operators,
 and cast rules
+The boolean type is named 'bool'
 
 struct ImplBool
 {
@@ -9,10 +10,9 @@ struct ImplBool
 }
 
 Operations
-
+We can only compare booleans (== or !=)
+Or use the boolean operators: && or ||
 See operators for more informations
-We can only compare booleans.
-@TODO: update operators
 
 We can static cast from bool to any scalar, and the other way.
 val can only be 0 or 1, so the cast assure this using usual bool conversion.

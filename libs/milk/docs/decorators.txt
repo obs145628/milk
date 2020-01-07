@@ -1,3 +1,8 @@
+
+[V-???]
+@TODO
+Just an idea for now, not part of the language ref yet
+
 Decorators Can be used to add some properties to some definitions.
 
 I don't want to have really powerfull Decorators.
@@ -15,6 +20,3 @@ It can only be attached to:
 eg:
 @attr("cdef")
 void exit(retcode: i32);
-
-[V0]
-Decorators are parsed, but they have absolutely no effect
