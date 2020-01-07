@@ -1,2 +1,2 @@
 
-fn foo() : void { if (4) { 5 + 6;} }
+fn foo() : void { if (4 == 0) { 5 + 6;} }
