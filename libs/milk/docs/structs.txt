@@ -1,7 +1,9 @@
 [V0] 
-struct are the closest form to OOP
 
+struct are the closest form to OOP
 A struct is composed of a list of fields.
+A list must have at least one non-static attribute
+(for V0, might change in future versions)
 
 Attributes:
 struct can contain attributes of any type 
@@ -34,7 +36,7 @@ Not in V0, more infos below
 Object construction:
 There is no constructor method. 
 To construct an object we use the constructor syntax:
-StructName { field1: val1, field2: val2, ... }
+StructName (.field1: val1, .field2: val2, ... )
 All fields must be initialized.
 
 Object destruction:
@@ -96,8 +98,8 @@ struct Vec2f
 
     fn static new(x: f32, y: f32) : Vec2f {
         return Vec2f (
-            _x: x,
-            _y: y
+            ._x: x,
+            ._y: y
         )
     }
 

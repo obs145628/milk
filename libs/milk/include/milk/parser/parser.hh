@@ -177,11 +177,10 @@ private:
 
   // expr_prim: expr_atom (expr_prim_right)*
   //
-  // expr_prim_right:  '(' expr_list ')'
+  // expr_prim_right:  '(' call_list ')'
   //		     | '[' expr ']'
   //		     | '.' @id
   //                 | '::' @id
-  //                 | '{' expr_dict '}'
   ASTExprPtr _r_expr_prim();
 
   // expr_atom:  '(' expr ')'
@@ -191,13 +190,16 @@ private:
   //	       | @id
   ASTExprPtr _r_expr_atom();
 
-  // expr_list:  @empty
-  //	       | expr (',' expr)*
-  ast_exprs_list_t _r_expr_list();
-
-  // expr_dict:  @empty
-  //	       | @id ':' expr (',' @id ':' expr)*
-  ast_exprs_dict_t _r_expr_dict();
+  // call_list: @empty
+  //           | call_list_arg (',' call_list_arg)*
+  //
+  // call_list_arg: expr | ( '.' @id ':' expr)
+  //
+  // ;once we got first named expr, all other can't be named
+  // ;we suppose after call_list there is always a ')'
+  // ;for now, we either have all named or all unamed args
+  // ;might change later
+  void _r_call_list(ast_exprs_list_t &args, ast_exprs_dict_t &args_named);
 };
 
 } // namespace milk

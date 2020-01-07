@@ -711,26 +711,40 @@ ASTExprPtr Parser::_r_expr_unop() {
 
 // expr_prim: expr_atom (expr_prim_right)*
 //
-// expr_prim_right:  '(' expr_list ')'
+// expr_prim_right:  '(' call_list ')'
 //		     | '[' expr ']'
 //		     | '.' @id
 //                   | '::' @id
-//                   | '{' expr_dict '}'
 ASTExprPtr Parser::_r_expr_prim() {
   auto res = _r_expr_atom();
   auto op_tok = obcl::Token::eof();
 
-  while (_consume_if_type({TOK_SYM_LRBRAC, TOK_SYM_LSBRAC, TOK_SYM_DOT,
-                           TOK_SYM_COLON2, TOK_SYM_LCBRAC},
-                          &op_tok)) {
+  while (_consume_if_type(
+      {TOK_SYM_LRBRAC, TOK_SYM_LSBRAC, TOK_SYM_DOT, TOK_SYM_COLON2}, &op_tok)) {
     switch (op_tok.type) {
 
     case TOK_SYM_LRBRAC: {
-      auto args = _r_expr_list();
+      ast_exprs_list_t args;
+      ast_exprs_dict_t args_named;
+      _r_call_list(args, args_named);
+      if (args.size() > 0 && args_named.size() > 0) {
+        obcl::Location err_loc(args.front()->loc(),
+                               args_named.back().second->loc());
+        throw obcl::ParserError(
+            err_loc,
+            "r:expr: call list cannot contain both named and unamed arguments");
+      }
+
       auto end_tok = _consume_of_type(
           TOK_SYM_RRBRAC, "r:expr: expected ')' to end call's arguments list");
       obcl::Location loc(res->loc(), end_tok.loc);
-      res = std::make_unique<ASTExprCall>(loc, std::move(res), std::move(args));
+
+      if (args_named.size() > 0)
+        res = std::make_unique<ASTExprCallNamed>(loc, std::move(res),
+                                                 std::move(args_named));
+      else
+        res =
+            std::make_unique<ASTExprCall>(loc, std::move(res), std::move(args));
       break;
     }
 
@@ -756,22 +770,6 @@ ASTExprPtr Parser::_r_expr_prim() {
           obcl::TOK_ID, "r:expr: expected field name after '::' symbol");
       res = std::make_unique<ASTExprField>(ASTExprField::Kind::FD_MOD,
                                            std::move(res), field_name);
-      break;
-    }
-
-    case TOK_SYM_LCBRAC: {
-      auto res_id = dynamic_cast<ASTExprId *>(res.get());
-      if (!res_id)
-        throw obcl::ParserError(
-            res->loc(), "r:expr: struct construction: invalid struct name");
-      auto fields = _r_expr_dict();
-      auto end_tok = _consume_of_type(TOK_SYM_RCBRAC,
-                                      "r:expr struct construction: expected "
-                                      "symbol '}' at the end of fields list");
-      res = std::make_unique<ASTExprConstructor>(
-          obcl::Location(res_id->loc(), end_tok.loc), res_id->id(),
-          std::move(fields));
-
       break;
     }
 
@@ -821,52 +819,47 @@ ASTExprPtr Parser::_r_expr_atom() {
   }
 }
 
-// expr_list:  @empty
-//	       | expr (',' expr)*
-ast_exprs_list_t Parser::_r_expr_list() {
-  ast_exprs_list_t res;
+// call_list:  @empty
+//           | call_list_arg (',' call_list_arg)*
+//
+// call_list_arg: expr | ('.' @id ':' expr)
+//
+// ;once we got first named expr, all other can't be named
+// ;we suppose after call_list there is always a ')'
+// ;for now, we either have all named or all unamed args
+// ;might change later
+void Parser::_r_call_list(ast_exprs_list_t &args,
+                          ast_exprs_dict_t &args_named) {
+  args.clear();
+  args_named.clear();
   bool has_coma = false;
 
   while (true) {
     if (_peek_type() == TOK_SYM_RRBRAC) {
       if (has_coma)
-        throw obcl::ParserError(_peek_token().loc,
-                                "Unexpected end of arguments ')' after ','");
+        throw obcl::ParserError(
+            _peek_token().loc,
+            "r:expr: Unexpected end of call list ')' after ','");
       break;
     }
 
-    res.push_back(_r_expr());
-    has_coma = _consume_if_type(TOK_SYM_COMA);
-  }
-
-  return res;
-}
-
-// expr_dict:  @empty
-//	       | @id ':' expr (',' @id ':' expr)*
-ast_exprs_dict_t Parser::_r_expr_dict() {
-  ast_exprs_dict_t res;
-  return res;
-
-  bool has_coma = false;
-
-  while (true) {
-    if (_peek_type() == TOK_SYM_RCBRAC) {
-      if (has_coma)
-        throw obcl::ParserError(_peek_token().loc,
-                                "Unexpected end of fields list '}' after ','");
-      break;
+    if (_consume_if_type(TOK_SYM_DOT)) {
+      // parsing named argument
+      auto field_id = _consume_id(
+          "r:expr: expected field name in call_list after symbol '.'");
+      auto field_val = _r_expr();
+      args_named.emplace_back(field_id, std::move(field_val));
+    } else {
+      // parsing unamed argument: expr
+      if (!args_named.empty())
+        throw obcl::ParserError(
+            _peek_token().loc,
+            "r:expr: unexpected unamed argument after named argument");
+      args.push_back(_r_expr());
     }
 
-    auto field_id = _consume_id(
-        "r:expr: expected field name in fields list struct construction");
-    auto field_val = _r_expr();
-    res.emplace_back(field_id, std::move(field_val));
-
     has_coma = _consume_if_type(TOK_SYM_COMA);
   }
-
-  return res;
 }
 
 } // namespace milk
