@@ -106,9 +106,12 @@ ASTDefFunPtr Parser::_r_fundef() {
   _consume_of_type(TOK_SYM_COLON, "r:fundef: expected ':'");
   auto ret_type = _r_typelabel();
   auto body = _r_stmt();
-  return std::make_unique<ASTDefFun>(beg_tok.loc, ASTDefFun::Kind::FUN, name,
-                                     std::move(args), std::move(ret_type),
-                                     std::move(body));
+  obcl::Location loc(beg_tok.loc, body->loc());
+  auto is_const = false;
+  auto is_static = false;
+  return std::make_unique<ASTDefFun>(
+      loc, ASTDefFun::Kind::FUN, ASTDefFun::ImplKind::CODE, is_const, is_static,
+      name, std::move(args), std::move(ret_type), std::move(body));
 }
 
 // fundef_argslist:  <fundef_arg> (',' <fundef_arg>)*
@@ -213,23 +216,40 @@ ASTDefVarPtr Parser::_r_structdef_attr() {
       std::make_unique<ASTNamedStorage>(loc, name, is_const, std::move(type)));
 }
 
-// structdef_meth: 'fn' @id '(' <fundef_argslist> ')' ['const'] ':'
-// <typelabel> <stmt>
+// // structdef_meth: 'fn' ['static'] @id '(' <fundef_argslist> ')' ['const']
+// ':' <typelabel> structdef_meth_body
+//
+// structed_meth_body:  <stmt>
+//		      | '=' 'default' ';'
 ASTDefFunPtr Parser::_r_structdef_meth() {
   auto beg_tok =
       _consume_of_type(TOK_KW_FN, "r:structdef_meth: expected keyword 'fn'");
+  auto is_static = _consume_if_type(TOK_KW_STATIC);
   auto name = _consume_id("r:structdef_meth: expected method name");
   _consume_of_type(TOK_SYM_LRBRAC, "r:structdef_meth: expected '('");
   auto args = _r_fundef_argslist();
   _consume_of_type(TOK_SYM_RRBRAC, "r:structdef_meth: expected ')'");
   _consume_of_type(TOK_SYM_COLON, "r:structdef_meth: expected ':'");
-  bool is_const = _consume_if_type(TOK_KW_CONST);
+  auto is_const = _consume_if_type(TOK_KW_CONST);
   auto ret_type = _r_typelabel();
-  auto body = _r_stmt();
-  return std::make_unique<ASTDefFun>(
-      beg_tok.loc,
-      is_const ? ASTDefFun::Kind::METH_CONST : ASTDefFun::Kind::METH, name,
-      std::move(args), std::move(ret_type), std::move(body));
+
+  if (_consume_if_type(TOK_SYM_EQ)) {
+    _consume_of_type(TOK_KW_DEFAULT,
+                     "r:structdef_meth: expected 'default' keyword");
+    auto end_tok = _consume_of_type(
+        TOK_SYM_SEMI,
+        "r:structdef_meth: expected ';' symbol after 'default' keyword");
+    return std::make_unique<ASTDefFun>(
+        obcl::Location(beg_tok.loc, end_tok.loc), ASTDefFun::Kind::METH,
+        ASTDefFun::ImplKind::DEFAULT, is_const, is_static, name,
+        std::move(args), std::move(ret_type), nullptr);
+  } else {
+    auto body = _r_stmt();
+    obcl::Location loc(beg_tok.loc, body->loc());
+    return std::make_unique<ASTDefFun>(
+        loc, ASTDefFun::Kind::METH, ASTDefFun::ImplKind::CODE, is_const,
+        is_static, name, std::move(args), std::move(ret_type), std::move(body));
+  }
 }
 
 // enumdef: 'enum' @id [':' <typelabel>] '{' <enumdef_field>+ '}' ';'
@@ -695,12 +715,14 @@ ASTExprPtr Parser::_r_expr_unop() {
 //		     | '[' expr ']'
 //		     | '.' @id
 //                   | '::' @id
+//                   | '{' expr_dict '}'
 ASTExprPtr Parser::_r_expr_prim() {
   auto res = _r_expr_atom();
   auto op_tok = obcl::Token::eof();
 
-  while (_consume_if_type(
-      {TOK_SYM_LRBRAC, TOK_SYM_LSBRAC, TOK_SYM_DOT, TOK_SYM_COLON2}, &op_tok)) {
+  while (_consume_if_type({TOK_SYM_LRBRAC, TOK_SYM_LSBRAC, TOK_SYM_DOT,
+                           TOK_SYM_COLON2, TOK_SYM_LCBRAC},
+                          &op_tok)) {
     switch (op_tok.type) {
 
     case TOK_SYM_LRBRAC: {
@@ -734,6 +756,22 @@ ASTExprPtr Parser::_r_expr_prim() {
           obcl::TOK_ID, "r:expr: expected field name after '::' symbol");
       res = std::make_unique<ASTExprField>(ASTExprField::Kind::FD_MOD,
                                            std::move(res), field_name);
+      break;
+    }
+
+    case TOK_SYM_LCBRAC: {
+      auto res_id = dynamic_cast<ASTExprId *>(res.get());
+      if (!res_id)
+        throw obcl::ParserError(
+            res->loc(), "r:expr: struct construction: invalid struct name");
+      auto fields = _r_expr_dict();
+      auto end_tok = _consume_of_type(TOK_SYM_RCBRAC,
+                                      "r:expr struct construction: expected "
+                                      "symbol '}' at the end of fields list");
+      res = std::make_unique<ASTExprConstructor>(
+          obcl::Location(res_id->loc(), end_tok.loc), res_id->id(),
+          std::move(fields));
+
       break;
     }
 
@@ -798,6 +836,33 @@ ast_exprs_list_t Parser::_r_expr_list() {
     }
 
     res.push_back(_r_expr());
+    has_coma = _consume_if_type(TOK_SYM_COMA);
+  }
+
+  return res;
+}
+
+// expr_dict:  @empty
+//	       | @id ':' expr (',' @id ':' expr)*
+ast_exprs_dict_t Parser::_r_expr_dict() {
+  ast_exprs_dict_t res;
+  return res;
+
+  bool has_coma = false;
+
+  while (true) {
+    if (_peek_type() == TOK_SYM_RCBRAC) {
+      if (has_coma)
+        throw obcl::ParserError(_peek_token().loc,
+                                "Unexpected end of fields list '}' after ','");
+      break;
+    }
+
+    auto field_id = _consume_id(
+        "r:expr: expected field name in fields list struct construction");
+    auto field_val = _r_expr();
+    res.emplace_back(field_id, std::move(field_val));
+
     has_coma = _consume_if_type(TOK_SYM_COMA);
   }
 

@@ -20,6 +20,7 @@
 #include "ast-def-var.hh"
 #include "ast-def.hh"
 #include "ast-expr-call.hh"
+#include "ast-expr-constructor.hh"
 #include "ast-expr-field.hh"
 #include "ast-expr-id.hh"
 #include "ast-expr-number.hh"

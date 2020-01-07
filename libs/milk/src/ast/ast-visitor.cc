@@ -27,6 +27,11 @@ void ASTVisitor::visit(const ASTExprCall &ast) {
     accept(*arg);
 }
 
+void ASTVisitor::visit(const ASTExprConstructor &ast) {
+  for (const auto &field : ast.fields())
+    accept(*field.second);
+}
+
 void ASTVisitor::visit(const ASTExprField &ast) { accept(ast.val()); }
 
 void ASTVisitor::visit(const ASTExprId &) {}

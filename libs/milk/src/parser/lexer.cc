@@ -24,6 +24,8 @@ const obcl::Lexer::CustomTokenInfos token_infos_custom[] = {
     DEF_KW(BREAK, "break"),
     DEF_KW(CONTINUE, "continue"),
     DEF_KW(RETURN, "return"),
+    DEF_KW(DEFAULT, "default"),
+    DEF_KW(STATIC, "static"),
 
     DEF_SYM(LCBRAC, "{"),
     DEF_SYM(RCBRAC, "}"),

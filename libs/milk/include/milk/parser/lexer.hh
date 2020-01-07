@@ -28,6 +28,8 @@ static constexpr obcl::token_type_t TOK_KW_WHILE = 1309;
 static constexpr obcl::token_type_t TOK_KW_BREAK = 1310;
 static constexpr obcl::token_type_t TOK_KW_CONTINUE = 1311;
 static constexpr obcl::token_type_t TOK_KW_RETURN = 1312;
+static constexpr obcl::token_type_t TOK_KW_DEFAULT = 1313;
+static constexpr obcl::token_type_t TOK_KW_STATIC = 1314;
 
 static constexpr obcl::token_type_t TOK_SYM_LCBRAC = 1401;
 static constexpr obcl::token_type_t TOK_SYM_RCBRAC = 1402;

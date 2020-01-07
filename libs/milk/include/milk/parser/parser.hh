@@ -73,8 +73,11 @@ private:
   // structdef_attr:   'let'|'const' @id ':' <typelabel> ';'
   ASTDefVarPtr _r_structdef_attr();
 
-  // structdef_meth: 'fn' @id '(' <fundef_argslist> ')' ['const'] ':'
-  // <typelabel> <stmt>
+  // structdef_meth: 'fn' ['static'] @id '(' <fundef_argslist> ')' ['const'] ':'
+  // <typelabel> structdef_meth_body
+  //
+  // structed_meth_body:  <stmt>
+  //			| '=' 'default' ';'
   ASTDefFunPtr _r_structdef_meth();
 
   // enumdef: 'enum' @id [':' <typelabel>] '{' <enumdef_field>+ '}' ';'
@@ -178,6 +181,7 @@ private:
   //		     | '[' expr ']'
   //		     | '.' @id
   //                 | '::' @id
+  //                 | '{' expr_dict '}'
   ASTExprPtr _r_expr_prim();
 
   // expr_atom:  '(' expr ')'
@@ -190,6 +194,10 @@ private:
   // expr_list:  @empty
   //	       | expr (',' expr)*
   ast_exprs_list_t _r_expr_list();
+
+  // expr_dict:  @empty
+  //	       | @id ':' expr (',' @id ':' expr)*
+  ast_exprs_dict_t _r_expr_dict();
 };
 
 } // namespace milk
