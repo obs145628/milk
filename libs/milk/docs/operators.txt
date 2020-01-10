@@ -184,13 +184,19 @@ x must be a struct, with a field (or method) with the corresponding name.
 Returns a reference to that field.
 
 
+::
+
+x::<name>
+Performs name resolution.
+Used to access static methods
+
+
 
 
 
 
 [V???]
+Arrow operator (->)
 @TODO: which version ?
-
-->
 
 x->[name> => (*x).<name>

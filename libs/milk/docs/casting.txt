@@ -1,5 +1,6 @@
 
 [V0]
+
 Implicit casting
 
 
@@ -19,7 +20,6 @@ It is performed when:
 
 Explicit casting:
 
-[V0]
 Casting functions
 
 These are special functions, automatically defined by the language.
@@ -29,6 +29,8 @@ The call for F(x: T) is only valid if static_cast{F}(x: T) is valid.
 They works exactly like static_cast.
 So why have static_cast ? static_cast is a template function, and can be used as such.
 Casting functions has no templates features (so it must be a true type)
+
+
 
 
 

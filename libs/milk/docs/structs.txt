@@ -27,6 +27,7 @@ Static fields:
 Static methods:
 We can define a static method (does not need a class instance).
 We use 'fn static'
+static methods cannot be const
 
 Static attributes:
 Global variables.

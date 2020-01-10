@@ -1,10 +1,54 @@
+[V0]
+
 Expressions are anything that have a value (can be a void value)
 
 They are several kind of expressions:
 
 - Constant: literal values for many types
 
-[V0]
+Integer: [0-9]+
+
+Float: [0-9]+[.[0-9]+]
+
+Char: '<char>' can be any printable char in single quotes, or one escaped.
+Possible escaped: '\n', '\t'
+type is char (alias for u8 or i8)
+
+- Identifier
+
+The identifier can be of many kinds, and has a known typed value.
+
+local variable:
+the expression type is a reference to this variable.
+
+named callabale
+These are for function and method calls.
+They are special because, when they will be overloading, we can't tell which function is called with a simple table lookup.
+Another stategy will be needed.
+For V0 this is still only a lookup
+
+Name resolution
+This is done in that order.
+- local variables, from inner to outer scopes.
+- function
+
+
+- Operator expression:
+
+Operators isn't just the usual math operators, call, deference, subscript, and more are also operators.
+All informations about operators (syntax, precendence, types) can be found in the operators document
+
+
+
+
+
+
+
+
+
+[V-????]
+Integer size suffix constant
+@TODO: which version
 
 Integer: [0-9]+[<type>] type can be any of i8, i16, i32, i64, u8, u16, u32, u64. default is i32.
 egs: 12, 43u8, 552i64
@@ -12,46 +56,23 @@ egs: 12, 43u8, 552i64
 Float: [0-9]+[.[0-9]+][<type>] type can be any of f32, f64. default is f64
 egs: 4.8, 12.4f32, 4f64
 
+
+[V-???]
+Char numeric constant
+@TODO: which version
 Char: '<char>' can be any ASCII char, or hexa: '\XX' or '\X' (same as '\0X')
 egs: 'a', '0', '\0', '\BF'
 type is char (alias for u8 or i8)
 
-@TODO: string constants
-
-- Identifier
-
-The identifier can be of many kinds, and has a known typed value.
-
-[V0]
-
-local variable:
-the expression is a reference to this variable
 
 [V-GLOBAL]
-global variable:
+Identifier to global variable.
+Identifier can be to a global variable
 the expression is a reference to this variable
-
-[V0]
-
-function:
-The expression is an ExprFunction, what the actual function is might be resolved later,
-mostly because of special functions (casts) and overloading.
-
-Name resolution
-This is done in that order.
-- local variables, from inner to outer scopes.
-- global variable:
-- function
+For name resolutions, global variable is between local variable and functions
 
 
-- Operator expression:
-
-[V0]
-
-Operators isn't just the usual math operators, call, deference, subscript, and more are also operators.
-
-The . can be used to access methods.
-In that case, it returns an ExprFunction, that is linked to an object (this argument)
-
-
-To get more infos about expression sytax, see operators. it gives the whole syntax with operators precedence.
+[V-???]
+String constants
+@TODO: which version
+Maybe same version that program ref ?

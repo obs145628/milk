@@ -30,4 +30,5 @@ It's exactly as a static_cast using the true underlying type.
 
 
 [V-???]
-@TODO: later versions, accept const expressions
+Enum field value set with const expressions
+@TODO: which version
