@@ -229,8 +229,8 @@ ASTDefFunPtr Parser::_r_structdef_meth() {
   _consume_of_type(TOK_SYM_LRBRAC, "r:structdef_meth: expected '('");
   auto args = _r_fundef_argslist();
   _consume_of_type(TOK_SYM_RRBRAC, "r:structdef_meth: expected ')'");
-  _consume_of_type(TOK_SYM_COLON, "r:structdef_meth: expected ':'");
   auto is_const = _consume_if_type(TOK_KW_CONST);
+  _consume_of_type(TOK_SYM_COLON, "r:structdef_meth: expected ':'");
   auto ret_type = _r_typelabel();
 
   if (_consume_if_type(TOK_SYM_EQ)) {
@@ -846,7 +846,10 @@ void Parser::_r_call_list(ast_exprs_list_t &args,
     if (_consume_if_type(TOK_SYM_DOT)) {
       // parsing named argument
       auto field_id = _consume_id(
-          "r:expr: expected field name in call_list after symbol '.'");
+          "r:expr: expected field name in call list after symbol '.'");
+      _consume_of_type(
+          TOK_SYM_COLON,
+          "r:expr: expected symbol ':' in call list after arg name");
       auto field_val = _r_expr();
       args_named.emplace_back(field_id, std::move(field_val));
     } else {
