@@ -1,14 +1,16 @@
 [V0]
 
-Variables can be of any types, and are allocated on the stack.
+Variables represent some allocated memory storage.
+They can be of any type, and are allocated on the stack.
+Variables must always be initialized.
+The language enforces that all memory accesses are to some initialized memory.
 
 They are defined as:
 
-let / const <name> [: <type>] '=' <value> ';'
+let / const <name> [: <type>] '=' <init> ';'
 
-The type is optional, if ignored, it corespondants exactly to the type of the actual type.
-It means, if the expr is a value, the value is moved to the object,
-If it's a reference, we get a reference.
+The type is optional, if ignored, it corespondants to the value type of the init expression.
+If we want to declare a reference, it must be done explicitly.
 
 If the variable is 'const', we cannot change it: accessing the var gives us a const-ref.
 
@@ -27,8 +29,19 @@ The assignment is done by calling this function:
 __var_assign(dst: U&, src: U): void;
 it symply moves src into dst.
 
+Passing arguments to function is the same as variable assignment.
 
-The same method is used for argument passing to a function.
+
+
+
+
+
+
+
+
+
+
+
 
 [V-SARRAY]
 

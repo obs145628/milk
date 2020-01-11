@@ -1,11 +1,32 @@
 
 [V0]
 
+The standard library is a set of functions and types defined outside of the language.
+They are almost like any other module files written from the user.
+
+At the exception that they use some features not possible for the user: 
+- struct can contain a ref.
+- function can return a ref.
+- implementation can use native code
+
+
+
+
 putchar(c: i32): i32
 Wrapper for putchar (3)
 
 getchar(): i32
 Wrapper for getchar (3)
+
+
+
+
+
+
+
+
+
+
 
 [V0-HACK]
 
@@ -18,12 +39,9 @@ Create a new array in heap allocated space, of size len, with all values initiza
 The bytes of x are simply copied to every element of the array, no matter the behavior of copy/clone
 This array is never deleted.
 
-
-
-
-[V-???]
-
-Specials functions:
+[V???]
+Specials functions
+@TODO: which version ?
 
 fn swap(x: T&, y: T&) : void
 
@@ -33,15 +51,10 @@ fn take(x: T&) : T
 
 T must implement the Default concept, move x to the return value, and set x to the default value.
 
-Defined types:
 
-char = i8
-short = i16
-int = i32
-long = i64
-size_t = u64
-
-Defined classes:
+[V???]
+String class
+@TODO: which version ?
 
 class String
 {

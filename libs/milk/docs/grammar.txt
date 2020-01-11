@@ -1,4 +1,6 @@
 
+[V0]
+
 The grammer is defined top-down.
 The definition use shortcuts to make clear definitions.
 
@@ -20,9 +22,9 @@ List: x+: match x 1+ times, x*: match x 0+ times
 Empty rule: ((empty))
 
 
-[V0]
 
-This is the grammar for the V0 version:
+
+Language grammar:
 
 file: def+ @eof
 

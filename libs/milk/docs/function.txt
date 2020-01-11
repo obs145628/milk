@@ -3,24 +3,38 @@
 
 A function is defined like this:
 
-def <name> (<argname1> : <argtype1>, <argname2> : <argtype2>, ...) : <rettype> <body>
+'fn' <name> '(' <argname1> : <argtype1>, <argname2> : <argtype2>, ... ')' ':' <rettype> <body>
 
-const argument: the definition is considered as without const.
+On the arguments definitions, we can have const arguments.
+The definition is considered as without const.
 It only means that on the function body, we won't be able to change this argument value.
 
-We cannot define a function with a ref return type.
+It's not possible to define a function with a ref return type.
 But functions from the standard lib can return a ref.
+
+All functions, and all methods within the same class must have different names
+
+A method is simply a function with an extra first parameter for self.
+It means exactly the same strategy for function resolution is used for methods.
+
+
+Examples:
+
+
+fn fact(x: u64) : u64 {
+    return x <= 1 ? 1 : x * fact(x - 1);
+}
+
+
+
+
+
+
+
 
 [V0-HACK]
 Functions can return ref types
 Incentive: can cause memory corruption, but only way to use heap allocated mem in V0
-
-
-eg:
-
-def fact(x: 64) : u64 {
-    return x < = 1 ? 1 : x * fact(x - 1);
-}
 
 
 

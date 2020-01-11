@@ -8,7 +8,6 @@ This page describe these functions signature and their default implementation.
 here are the list, by precedence order:
 
 Assignment: =, += *=, -=, /=, %= (RTL)
-
 transformed to:
 __operator_set(dst: U&, src: U): void; 
 __operator_setadd(dst: U&, src: U): void; [CAN OVERLOAD]
@@ -20,14 +19,11 @@ U: val_type of left operand (strip all qualifiers)
 
 operator_set: the basic implementation calls the destructor on dst
 then move src into dst.
-All the other assign operators are only implemented for the scalar types.
-
-[V-TEMPLATE]
-All functions defined as templates with U template parameter.
-for all the .=, U must implement the concept NativeScalar
+For all the .=, U must be a NativeScalar
 
 
-Ternary operators:
+
+Ternary operators (RTL)
 a ? b : c.
 A must be a boolean, and b and c must be of same type.
 
@@ -48,45 +44,37 @@ otherwhise it returns a value.
 
 
 || (LTR)
-
 a (bool) || b (bool) => bool
 Performs short circuiting
 
 
 && (LTR)
-
 a (bool) && b (bool) => bool
 Performs short circuiting
 
 
 | (LTR)
-
 transforms to:
 U __operator_binand(x: U, y: U) with U : NativeInt [CAN OVERLOAD]
 
 
 ^ (LTR)
-
 transforms to:
 U __operator_xor(x: U, y: U) with U : NativeInt [CAN OVERLOAD]
 
 
 & (LTR)
-
 transforms to:
 U __operator_binor(x: U, y: U) with U : NativeInt [CAN OVERLOAD]
 
 
 == / != (LTR)
-
 == transforms to:
 bool __operator_equals(x: U, y: U) with U : NativeSclar or bool or Enum [CAN OVERLOAD]
-
 a != => ! __operators_equals(a, b)
 
 
 < > <= >= (LTR)
-
 transforms to:
 bool __operator_lt(x: U, y: U) with U : NativeScalar [CAN OVERLOAD]
 bool __operator_gt(x: U, y: U) with U : NativeScalar [CAN OVERLOAD]
@@ -95,21 +83,18 @@ bool __operator_geq(x: U, y: U) with U : NativeScalar [CAN OVERLOAD]
 
 
 >> << (LTR)
-
 transforms to:
 U __operator_rshift(x: U, y: U) with U : NativeInt [CAN OVERLOAD]
 U __operator_lshift(x: U, y: U) with U : NativeInt [CAN OVERLOAD]
 
 
-+ -
-
++ - (LTR)
 transforms to:
 U __operator_add(x: U, y: U) with U : NativeScalar [CAN OVERLOAD]
 U __operator_sub(x: U, y: U) with U : NativeScalar [CAN OVERLOAD]
 
 
-* / %
-
+* / % (LTR)
 transforms to:
 U __operator_mul(x: U, y: U) with U : NativeScalar [CAN OVERLOAD]
 U __operator_div(x: U, y: U) with U : NativeScalar [CAN OVERLOAD]
@@ -122,70 +107,49 @@ All RTS, have the same precedence level:
 
 
 +
-
 transforms to:
 U __operator_add(x: U) with U : NativeScalar [CAN OVERLOAD]
 
 
 -
-
 transforms to:
 U __operator_neg(x: U) with U : NativeScalar [CAN OVERLOAD]
 
 
 !
-
 transforms to:
 bool __operator_boolnot(x: bool)
 
 
 ~
-
 transforms to:
 U __operator_not(x: U) with U : NativeInt [CAN OVERLOAD]
 
 
-[V???]
-TODO: which version ???
-
-*
-
-*x => __operator_deref(x : U);
-Some special native types overlaod this operator (eg smart pointers)
- 
-
-@TODO: sizeof ?
-
 
 
 Primary Expression operators
-They are are on the same level, from left to right
+All LTR, have the same precedence level
 
 
 () (Call oeprator)
-
 It the left hand side is a ExprFunctio, simply calls this function / method.
 Otherwhise, it calls the method __call(args..) on the object. (Callable)
-The struct can have several implementations, it performs function resolving.
 
 
 []
-
 x[y]
-
 transforms to x.__operator_subscript(y)
-This method is defined on &[] types, and can be defined for any struct.
+This method is defined on &[] types, and can be overloaded for any struct.
 
 
 .
-
 x.<name>
 x must be a struct, with a field (or method) with the corresponding name.
 Returns a reference to that field.
 
 
 ::
-
 x::<name>
 Performs name resolution.
 Used to access static methods
@@ -195,8 +159,28 @@ Used to access static methods
 
 
 
+
+
+
+
+
+[V???]
+TODO: which version ???
+Defererence operator
+*x => __operator_deref(x : U);
+Some special native types overlaod this operator (eg smart pointers)
+ 
+
+[V???]
+@TODO: wich version
+Sizeof operator
+
 [V???]
 Arrow operator (->)
 @TODO: which version ?
-
 x->[name> => (*x).<name>
+
+
+[V???]
+Operators overloading
+@TODO: which version

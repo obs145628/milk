@@ -1,8 +1,8 @@
+[V0]
+
 A statement is what represent actual source code that get executed at runtime.
 
 A statement can be find in multiple locations of the source file:
-
-[V0]
 - the function / method body is a statement
 
 
@@ -20,6 +20,7 @@ All variables defined in that sope are deleted at the end of the scope (in undef
 - StatementExpr:
 <expr> ';'
 The statement is simply an expression, more infos in expr
+The expression value is simply ignored.
 
 
 - StatementVarDef
@@ -32,7 +33,7 @@ if (condition) <codeif...> [else <codeelse...>]
 
 condition must be executed. codeif executed if condition, otherwhise execute codeelse (if defined)
 
-There is an ambiguity in the grammar with if ... else if ... else ... Last else is connected to the closer if.
+There is an ambiguity in the grammar with if ... else if ... else ... Last else is connected to the closest if.
 
 
 
@@ -57,10 +58,23 @@ The expr type must be the same than the return type of the function.
 For void function, it's we can use return to simply leave the function: 'return;'
 
 
-@TODO: return
 
 
-@TODO: for loop (iteration, not just C-like) (not for V0)
 
 
-@TODO: switch : case (not for V0)
+
+
+
+
+
+
+
+
+[V???]
+Foreach loop
+@TODO: Which version
+
+
+[V???]
+Switch statement
+@TODO: Which version

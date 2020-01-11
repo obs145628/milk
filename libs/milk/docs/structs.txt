@@ -101,7 +101,7 @@ struct Vec2f
         return Vec2f (
             ._x: x,
             ._y: y
-        )
+        );
     }
 
     fn static zero(): Vec2f
@@ -116,7 +116,7 @@ struct Vec2f
 
     let _x: f32;
     let _y: f32;
-}
+};
 
 
 

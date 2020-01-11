@@ -3,10 +3,8 @@
 There is no modules, just a list of files to compile.
 Files can refer to definition from other files, and cannot redefine a symbol.
 It's like concatenate all files in one (with unspecified order), and compile this file.
-
-Each file is it's own module (except V0 they are all combined)
-
-A module is just a list of definitions (there is no forward declaration)
+A file is just a list of definitions.
+There is no forward definitions (not needed)
 
 The possible kinds of definition are:
 
@@ -18,23 +16,10 @@ struct <name> {
  ...
 } ;
 
-a struct contains a list of nested definitions:
-
-- struct attribute definition:
-let / const <name> : <Type>;
-
-- struct method definiton:
-fn <name> (<argname1>: <argtype1>, ...) [const] : <rettype> <body>
-
-
-
 - enum definition
 'enum' <name> [': <inttype>] {
-   <name1> [= val1];
-   <name2> [= val2];
    ...
 };
-
 
 - function definition:
 fn <name> (<argname1>: <argtype1>, ...): <rettype> <body>
@@ -48,8 +33,12 @@ This rule is about storage: x struct data representation cannot contains another
 
 
 
-[V-MOD] Modules system
 
+
+
+
+
+[V-MOD] Modules system
 @TODO
 
 
