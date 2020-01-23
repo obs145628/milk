@@ -21,9 +21,7 @@ namespace milk {
 /// Parent class for all types that are a simple value
 /// native type, structs and enums
 class TypeVal : public TypeSimple {
-public:
+protected:
   TypeVal(std::uint32_t code) : TypeSimple(code) {}
-
-private:
 };
 } // namespace milk

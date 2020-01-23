@@ -24,16 +24,17 @@ namespace milk {
 /// eg: native type, struct, refs
 class TypeSimple : public Type {
 public:
-  /// Each simple type can be represented by a code
-  /// The higher byte add some properties to the type (ref, array, const)
-  /// The 3 lower bytes is a unique identifier for the type
-  TypeSimple(std::uint32_t code) : _code(code) {}
-
   std::uint32_t get_code() const { return _code; }
   std::uint32_t get_code_attrs() const { return _code & 0xFF000000; }
   std::uint32_t get_code_val() const { return _code & 0xFFFFFF; }
 
 private:
   std::uint32_t _code;
+
+protected:
+  /// Each simple type can be represented by a code
+  /// The higher byte add some properties to the type (ref, array, const)
+  /// The 3 lower bytes is a unique identifier for the type
+  TypeSimple(std::uint32_t code) : _code(code) {}
 };
 } // namespace milk

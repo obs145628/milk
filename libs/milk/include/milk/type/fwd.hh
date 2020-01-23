@@ -17,9 +17,16 @@ namespace milk {
 
 class Type;
 class TypeComposite;
+class TypeEnum;
 class TypeFun;
+class TypeNative;
+class TypeNativeFloat;
+class TypeNativeInt;
+class TypeRef;
 class TypeSimple;
+class TypeStruct;
 class TypeVal;
 class TypeVisitor;
+class TypeVoid;
 
 } // namespace milk

@@ -23,9 +23,6 @@ namespace milk {
 /// Class to represent a function type
 class TypeFun : public TypeComposite {
 public:
-  TypeFun(const Type *ret, const std::vector<const Type *> &args)
-      : _ret(ret), _args(args) {}
-
   const Type *ret() const { return _ret; }
   const std::vector<const Type *> &args() const { return _args; }
 
@@ -34,5 +31,9 @@ public:
 private:
   const Type *_ret;
   std::vector<const Type *> _args;
+
+private:
+  TypeFun(const Type *ret, const std::vector<const Type *> &args)
+      : _ret(ret), _args(args) {}
 };
 } // namespace milk

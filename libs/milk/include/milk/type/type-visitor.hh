@@ -32,7 +32,13 @@ public:
   void accept(const Type *t) { t->accept(*this); }
 
   // default visitors, recursive call through children
+  virtual void visit(const TypeEnum &t);
   virtual void visit(const TypeFun &t);
+  virtual void visit(const TypeNativeFloat &t);
+  virtual void visit(const TypeNativeInt &t);
+  virtual void visit(const TypeRef &t);
+  virtual void visit(const TypeStruct &t);
+  virtual void visit(const TypeVoid &t);
 
 private:
 };
