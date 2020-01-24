@@ -13,6 +13,7 @@
 #pragma once
 
 #include "fwd.hh"
+#include "type-codes.hh"
 #include "type-simple.hh"
 #include "type-visitor.hh"
 
@@ -21,11 +22,11 @@ namespace milk {
 /// Represent the basic void type
 class TypeVoid : public TypeSimple {
 private:
-  TypeVoid()
-      : TypeSimple(0) // TODO: use constexpr code
-  {}
+  TypeVoid() : TypeSimple(typecode::CODE_VOID) {}
 
   void accept(TypeVisitor &visitor) const override { visitor.visit(*this); }
+
+  friend TypeBuilder;
 };
 
 } // namespace milk

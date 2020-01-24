@@ -22,6 +22,16 @@ namespace milk {
 /// native type, structs and enums
 class TypeVal : public TypeSimple {
 protected:
-  TypeVal(std::uint32_t code) : TypeSimple(code) {}
+  TypeVal(std::uint32_t code)
+      : TypeSimple(code), _type_mref(nullptr), _type_cref(nullptr),
+        _type_amref(nullptr), _type_acref(nullptr) {}
+
+private:
+  mutable const TypeRef *_type_mref;
+  mutable const TypeRef *_type_cref;
+  mutable const TypeRef *_type_amref;
+  mutable const TypeRef *_type_acref;
+
+  friend TypeBuilder;
 };
 } // namespace milk

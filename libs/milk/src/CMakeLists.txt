@@ -13,6 +13,7 @@ set(PARSER_SRC
 )
 
 set(TYPE_SRC
+  type/type-builder.cc
   type/type-visitor.cc
 )
 

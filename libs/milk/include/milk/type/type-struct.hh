@@ -34,6 +34,8 @@ public:
     return _fields;
   }
 
+  const std::string &name() const { return _name; }
+
   /// Declare fields types after type creation
   /// Can be called only once
   void declare_fields(const std::map<std::string, const Type *> &fields) const {
@@ -46,8 +48,12 @@ public:
 private:
   mutable bool _defined;
   mutable std::map<std::string, const Type *> _fields;
+  std::string _name;
 
 private:
-  TypeStruct(std::uint32_t code) : TypeVal(code) {}
+  TypeStruct(std::uint32_t code, const std::string &name)
+      : TypeVal(code), _defined(false), _name(name) {}
+
+  friend TypeBuilder;
 };
 } // namespace milk

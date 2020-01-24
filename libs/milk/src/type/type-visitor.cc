@@ -4,9 +4,7 @@
 #include "type/type-fun.hh"
 #include "type/type-native.hh"
 #include "type/type-ref.hh"
-#include "type/type-simple.hh"
 #include "type/type-struct.hh"
-#include "type/type-val.hh"
 #include "type/type-void.hh"
 
 namespace milk {
@@ -23,7 +21,7 @@ void TypeVisitor::visit(const TypeNativeFloat &) {}
 
 void TypeVisitor::visit(const TypeNativeInt &) {}
 
-void TypeVisitor::visit(const TypeRef &t) { accept(t.val_type()); }
+void TypeVisitor::visit(const TypeRef &) {}
 
 void TypeVisitor::visit(const TypeStruct &t) {
   if (t.is_defined())

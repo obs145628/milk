@@ -16,6 +16,7 @@
 namespace milk {
 
 class Type;
+class TypeBuilder;
 class TypeComposite;
 class TypeEnum;
 class TypeFun;

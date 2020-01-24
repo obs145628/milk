@@ -35,5 +35,7 @@ private:
 private:
   TypeFun(const Type *ret, const std::vector<const Type *> &args)
       : _ret(ret), _args(args) {}
+
+  friend TypeBuilder;
 };
 } // namespace milk

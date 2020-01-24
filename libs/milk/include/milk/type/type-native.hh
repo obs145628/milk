@@ -14,6 +14,7 @@
 #pragma once
 
 #include "fwd.hh"
+#include "type-codes.hh"
 #include "type-val.hh"
 #include "type-visitor.hh"
 
@@ -33,6 +34,8 @@ class TypeNativeInt : public TypeNative {
 public:
   enum class Kind { I8, I16, I32, I64, U8, U16, U32, U64 };
 
+  static int kind2code(Kind kind);
+
   Kind kind() const { return _kind; }
 
   void accept(TypeVisitor &visitor) const override { visitor.visit(*this); }
@@ -40,8 +43,9 @@ public:
 private:
   Kind _kind;
 
-  TypeNativeInt(std::uint32_t code, Kind kind)
-      : TypeNative(code), _kind(kind) {}
+  TypeNativeInt(Kind kind) : TypeNative(kind2code(kind)), _kind(kind) {}
+
+  friend TypeBuilder;
 };
 
 /// Represent all floating points types
@@ -50,6 +54,8 @@ class TypeNativeFloat : public TypeNative {
 public:
   enum class Kind { F32, F64 };
 
+  static int kind2code(Kind kind);
+
   Kind kind() const { return _kind; }
 
   void accept(TypeVisitor &visitor) const override { visitor.visit(*this); }
@@ -57,8 +63,39 @@ public:
 private:
   Kind _kind;
 
-  TypeNativeFloat(std::uint32_t code, Kind kind)
-      : TypeNative(code), _kind(kind) {}
+  TypeNativeFloat(Kind kind) : TypeNative(kind2code(kind)), _kind(kind) {}
+
+  friend TypeBuilder;
 };
+
+inline int TypeNativeInt::kind2code(Kind kind) {
+  switch (kind) {
+  case Kind::U8:
+    return typecode::CODE_U8;
+  case Kind::U16:
+    return typecode::CODE_U16;
+  case Kind::U32:
+    return typecode::CODE_U32;
+  case Kind::U64:
+    return typecode::CODE_U64;
+  case Kind::I8:
+    return typecode::CODE_I8;
+  case Kind::I16:
+    return typecode::CODE_I16;
+  case Kind::I32:
+    return typecode::CODE_I32;
+  case Kind::I64:
+    return typecode::CODE_I64;
+  }
+}
+
+inline int TypeNativeFloat::kind2code(Kind kind) {
+  switch (kind) {
+  case Kind::F32:
+    return typecode::CODE_F32;
+  case Kind::F64:
+    return typecode::CODE_F64;
+  }
+}
 
 } // namespace milk

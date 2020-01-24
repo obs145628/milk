@@ -31,17 +31,18 @@ public:
     ACREF, //&[]const T
   };
 
-  const Type *val_type() const { return _val_type; }
   Kind kind() const { return _kind; }
 
   void accept(TypeVisitor &visitor) const override { visitor.visit(*this); }
 
 private:
-  const Type *_val_type;
+  const TypeVal *_type_val;
   Kind _kind;
 
 private:
-  TypeRef(int code, const Type *val_type, Kind kind)
-      : TypeSimple(code), _val_type(val_type), _kind(kind) {}
+  TypeRef(int code, const TypeVal *type_val, Kind kind)
+      : TypeSimple(code), _type_val(type_val), _kind(kind) {}
+
+  friend TypeBuilder;
 };
 } // namespace milk
