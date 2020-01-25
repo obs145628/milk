@@ -24,9 +24,7 @@ namespace milk {
 /// eg: native type, struct, refs
 class TypeSimple : public Type {
 public:
-  std::uint32_t get_code() const { return _code; }
-  std::uint32_t get_code_attrs() const { return _code & 0xFF000000; }
-  std::uint32_t get_code_val() const { return _code & 0xFFFFFF; }
+  std::uint32_t code() const { return _code; }
 
 private:
   std::uint32_t _code;

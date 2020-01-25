@@ -86,26 +86,40 @@ const TypeVal *TypeBuilder::type_val(const TypeRef *ty) {
 
 const TypeRef *TypeBuilder::type_mref(const TypeVal *ty) {
   if (!ty->_type_mref)
-    ty->_type_mref = new TypeRef(0, ty, TypeRef::Kind::MREF);
+    ty->_type_mref = new TypeRef(ty, TypeRef::Kind::MREF);
   return ty->_type_mref;
 }
 
 const TypeRef *TypeBuilder::type_cref(const TypeVal *ty) {
   if (!ty->_type_cref)
-    ty->_type_cref = new TypeRef(0, ty, TypeRef::Kind::CREF);
+    ty->_type_cref = new TypeRef(ty, TypeRef::Kind::CREF);
   return ty->_type_cref;
 }
 
 const TypeRef *TypeBuilder::type_amref(const TypeVal *ty) {
   if (!ty->_type_amref)
-    ty->_type_amref = new TypeRef(0, ty, TypeRef::Kind::AMREF);
+    ty->_type_amref = new TypeRef(ty, TypeRef::Kind::AMREF);
   return ty->_type_amref;
 }
 
 const TypeRef *TypeBuilder::type_acref(const TypeVal *ty) {
   if (!ty->_type_acref)
-    ty->_type_acref = new TypeRef(0, ty, TypeRef::Kind::ACREF);
+    ty->_type_acref = new TypeRef(ty, TypeRef::Kind::ACREF);
   return ty->_type_acref;
+}
+
+const TypeFun *TypeBuilder::type_fun(const Type *ret,
+                                     const std::vector<const Type *> &args) {
+  // TODO: still requires 1 vector allocation to check if fun already defined,
+  // how to avoid this ?
+  TypeFun mock_fun(ret, args);
+  auto it = _funs_table.find(&mock_fun);
+  if (it != _funs_table.end())
+    return *it;
+
+  auto res = new TypeFun(ret, args);
+  _funs_table.insert(res);
+  return res;
 }
 
 const TypeStruct *TypeBuilder::make_type_struct(const std::string &name) {
@@ -123,34 +137,26 @@ TypeBuilder::make_type_enum(const std::string &name,
   return res;
 }
 
-namespace {
+std::size_t TypeBuilder::TypeFunHash::operator()(const TypeFun *ty) const
+    noexcept {
+  std::size_t res = 0;
 
-class TypeFunHash {
+  auto ret_simple = dynamic_cast<const TypeSimple *>(ty->ret());
+  assert(ret_simple);
+  res ^= std::hash<const TypeSimple *>()(ret_simple);
 
-  std::size_t operator()(const TypeFun *ty) {
-    std::size_t res = 0;
-
-    auto ret_simple = dynamic_cast<const TypeSimple *>(ty->ret());
-    assert(ret_simple);
-    res ^= std::hash<const TypeSimple *>()(ret_simple);
-
-    for (auto arg : ty->args()) {
-      auto arg_simple = dynamic_cast<const TypeSimple *>(arg);
-      assert(arg_simple);
-      res ^= std::hash<const TypeSimple *>()(arg_simple);
-    }
-
-    return res;
+  for (auto arg : ty->args()) {
+    auto arg_simple = dynamic_cast<const TypeSimple *>(arg);
+    assert(arg_simple);
+    res ^= std::hash<const TypeSimple *>()(arg_simple);
   }
-};
 
-class TypeFunEq {
+  return res;
+}
 
-  bool operator()(const TypeFun *a, const TypeFun *b) {
-    return a->ret() == b->ret() && a->args() == b->args();
-  };
-};
-
-} // namespace
+bool TypeBuilder::TypeFunEq::operator()(const TypeFun *a,
+                                        const TypeFun *b) const noexcept {
+  return a->ret() == b->ret() && a->args() == b->args();
+}
 
 } // namespace milk

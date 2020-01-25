@@ -15,6 +15,7 @@
 #include <vector>
 
 #include "fwd.hh"
+#include "type-codes.hh"
 #include "type-simple.hh"
 #include "type-visitor.hh"
 
@@ -31,6 +32,8 @@ public:
     ACREF, //&[]const T
   };
 
+  static std::uint32_t kind2attr(Kind kind);
+
   Kind kind() const { return _kind; }
 
   void accept(TypeVisitor &visitor) const override { visitor.visit(*this); }
@@ -40,9 +43,24 @@ private:
   Kind _kind;
 
 private:
-  TypeRef(int code, const TypeVal *type_val, Kind kind)
-      : TypeSimple(code), _type_val(type_val), _kind(kind) {}
+  TypeRef(const TypeVal *type_val, Kind kind)
+      : TypeSimple(typecode::build_code(type_val->code(), kind2attr(kind))),
+        _type_val(type_val), _kind(kind) {}
 
   friend TypeBuilder;
 };
+
+inline std::uint32_t TypeRef::kind2attr(Kind kind) {
+  switch (kind) {
+  case Kind::MREF:
+    return typecode::ATTR_MREF;
+  case Kind::CREF:
+    return typecode::ATTR_CREF;
+  case Kind::AMREF:
+    return typecode::ATTR_AMREF;
+  case Kind::ACREF:
+    return typecode::ATTR_ACREF;
+  }
+}
+
 } // namespace milk

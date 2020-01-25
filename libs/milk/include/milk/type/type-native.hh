@@ -34,7 +34,7 @@ class TypeNativeInt : public TypeNative {
 public:
   enum class Kind { I8, I16, I32, I64, U8, U16, U32, U64 };
 
-  static int kind2code(Kind kind);
+  static std::uint32_t kind2code(Kind kind);
 
   Kind kind() const { return _kind; }
 
@@ -54,7 +54,7 @@ class TypeNativeFloat : public TypeNative {
 public:
   enum class Kind { F32, F64 };
 
-  static int kind2code(Kind kind);
+  static std::uint32_t kind2code(Kind kind);
 
   Kind kind() const { return _kind; }
 
@@ -68,7 +68,7 @@ private:
   friend TypeBuilder;
 };
 
-inline int TypeNativeInt::kind2code(Kind kind) {
+inline std::uint32_t TypeNativeInt::kind2code(Kind kind) {
   switch (kind) {
   case Kind::U8:
     return typecode::CODE_U8;
@@ -89,7 +89,7 @@ inline int TypeNativeInt::kind2code(Kind kind) {
   }
 }
 
-inline int TypeNativeFloat::kind2code(Kind kind) {
+inline std::uint32_t TypeNativeFloat::kind2code(Kind kind) {
   switch (kind) {
   case Kind::F32:
     return typecode::CODE_F32;
